@@ -1,0 +1,10 @@
+target
+.metadata
+.recommenders
+.settings
+.classpath
+.project
+*.class
+# Package Files #
+*.jar
+*.war
