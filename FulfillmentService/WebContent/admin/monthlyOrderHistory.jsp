@@ -6,7 +6,8 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<link href="../Resources/css/bootstrap.min.css" rel="stylesheet">
+<link href="Resources/css/bootstrap.min.css" rel="stylesheet">
+<link href="Resources/css/jquery-ui.min.css" rel="stylesheet">
 <title>Fulfillment Service</title>
 </head>
 <body>
@@ -17,8 +18,19 @@
 		<jsp:include page="/admin/common/navigator.jsp"/>
 	
 		<div class="col-sm-9 col-md-10  main">
-		 	<h3>관리자 - 월단위 발주내역 출력하는 화면</h3>
-			<hr>
+		 	<div class="col-md-7">
+		 		<h3>관리자 - 월단위 주문내역 출력하는 화면</h3>
+			</div>
+		 	<div class="col-md-5">
+				<form action="../control/adminControl.jsp?action=dailySales" class="form-horizontal" method="post">
+					<label for="startDate">
+					Date :
+					</label>
+					<input name="startDate" id="startDate" class="date-picker" />
+				</form>
+			</div>
+		
+			<br><hr><br>
 		 	참고해야 하는 사이트<br>
 		 	http://bootstrapk.com/components/#navbar
 		 	<br><br>
@@ -35,7 +47,29 @@
  
 <jsp:include page="/admin/common/footer.jsp" />
 
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
-<script src="../Resources/js/bootstrap.min.js"></script>
+<!-- ==================================================================== -->
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+	<script src="Resources/js/bootstrap.min.js"></script>
+	<script src="Resources/js/jquery-ui.min.js"></script>
+	<script>
+		$(function(){
+			$('.date-picker').datepicker({
+				changeMonth: true,
+				changeYear: true,
+				showButtonPanel: true,
+				dateFormat: 'MM-yy',
+				onClose: function(dateText, inst){
+				var month = $("#ui-datepicker-div .ui-datepicker-month :selected").val();
+				var year = $("#ui-datepicker-div .ui-datepicker-year :selected").val();
+				$(this).datepicker('setDate', new Date(year, month, 1));
+				}
+			});
+		});
+	</script>
+	<style>
+		.ui-datepicker-calendar {
+		display: none;
+		}
+	</style>
 </body>
 </html>

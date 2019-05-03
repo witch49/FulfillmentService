@@ -7,11 +7,13 @@ public class InvoiceDTO {
 	private int i_pId;
 	private String i_pName;
 	private int iAmount;
-	private String i_orderDate;
+	private String iOrderDate;
 	private int i_sId;
+	private int i_tId;
+	private String iCheck;
 
 	public InvoiceDTO(int iId, String iConsigneeName, String iConsigneeTel, String iConsigneeAddr, int i_pId,
-			String i_pName, int iAmount, String i_orderDate, int i_sId) {
+			String i_pName, int iAmount, String iOrderDate, int i_sId, int i_tId, String iCheck) {
 		this.iId = iId;
 		this.iConsigneeName = iConsigneeName;
 		this.iConsigneeTel = iConsigneeTel;
@@ -19,8 +21,10 @@ public class InvoiceDTO {
 		this.i_pId = i_pId;
 		this.i_pName = i_pName;
 		this.iAmount = iAmount;
-		this.i_orderDate = i_orderDate;
+		this.iOrderDate = iOrderDate;
 		this.i_sId = i_sId;
+		this.i_tId = i_tId;
+		this.iCheck = iCheck;
 	}
 
 	public InvoiceDTO() {
@@ -82,12 +86,12 @@ public class InvoiceDTO {
 		this.iAmount = iAmount;
 	}
 
-	public String getI_orderDate() {
-		return i_orderDate;
+	public String getiOrderDate() {
+		return iOrderDate;
 	}
 
-	public void setI_orderDate(String i_orderDate) {
-		this.i_orderDate = i_orderDate;
+	public void setiOrderDate(String iOrderDate) {
+		this.iOrderDate = iOrderDate;
 	}
 
 	public int getI_sId() {
@@ -98,11 +102,28 @@ public class InvoiceDTO {
 		this.i_sId = i_sId;
 	}
 
+	public int getI_tId() {
+		return i_tId;
+	}
+
+	public void setI_tId(int i_tId) {
+		this.i_tId = i_tId;
+	}
+
+	public String getiCheck() {
+		return iCheck;
+	}
+
+	public void setiCheck(String iCheck) {
+		this.iCheck = iCheck;
+	}
+
 	@Override
 	public String toString() {
 		return "InvoiceDTO [iId=" + iId + ", iConsigneeName=" + iConsigneeName + ", iConsigneeTel=" + iConsigneeTel
 				+ ", iConsigneeAddr=" + iConsigneeAddr + ", i_pId=" + i_pId + ", i_pName=" + i_pName + ", iAmount="
-				+ iAmount + ", i_orderDate=" + i_orderDate + ", i_sId=" + i_sId + "]";
+				+ iAmount + ", iOrderDate=" + iOrderDate + ", i_sId=" + i_sId + ", i_tId=" + i_tId + ", iCheck="
+				+ iCheck + "]";
 	}
 
 }

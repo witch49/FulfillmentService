@@ -11,22 +11,22 @@
 <title>Fulfillment Service</title>
 </head>
 <body>
-<jsp:include page="/admin/common/header.jsp" />
+<jsp:include page="admin/common/header.jsp" />
 
 <div class="container-fluid">
 	<div class="row">
-		<jsp:include page="/admin/common/navigator.jsp"/>
+		<jsp:include page="admin/common/navigator.jsp"/>
 	
 		<div class="col-sm-9 col-md-10  main">
-		 	<div class="col-md-7">
-		 		<h3>관리자 - 월단위 운송내역 출력하는 화면</h3>
-			</div>
+		<div class="col-md-7">
+		 	<h3>구매처, 운송회사 - 월단위 주문내역 출력하는 화면</h3>
+		</div>
 		 	<div class="col-md-5">
 				<form action="../control/adminControl.jsp?action=dailySales" class="form-horizontal" method="post">
 					<label for="startDate">
 					Date :
 					</label>
-					<input name="startDate" id="startDate" class="date-picker" />
+					<input type="text" id="datepicker">
 				</form>
 			</div>
 		
@@ -36,8 +36,8 @@
 		 	<br><br>
 		 	<div class="col-xs-11" >
 		 	<table class="table table-bordered">
-  				<tr><th>송장ID</th><th>전화번호</th><th>주문날짜</th><th>운송회사ID</th><th>금액</th></tr>
-  				<tr><td>0000</td><td>010-1234-4567</td><td>2019-04-20</td><td>70001</td><td>12000</td></tr>
+  				<tr><th>송장ID</th><th>전화번호</th><th>주문날짜</th><th>쇼핑몰ID</th><th>금액</th></tr>
+  				<tr><td>0000</td><td>010-1234-4567</td><td>2019-04-20</td><td>30001</td><td>12000</td></tr>
   				<tr><td>gg</td><td>gg</td><td>gg</td><td>gg</td><td>gg</td></tr>
 			</table>
 		 	</div>
@@ -45,9 +45,8 @@
  	</div>
  </div>
  
-<jsp:include page="/admin/common/footer.jsp" />
-
-<!-- ==================================================================== -->
+<jsp:include page="admin/common/footer.jsp" />
+	<!-- ==================================================================== -->
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
 	<script src="Resources/js/bootstrap.min.js"></script>
 	<script src="Resources/js/jquery-ui.min.js"></script>

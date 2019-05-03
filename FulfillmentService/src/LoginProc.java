@@ -56,7 +56,7 @@ public class LoginProc extends HttpServlet {
 				// rd = request.getRequestDispatcher("/admin/monthlySalesHistory.jsp");
 				// rd.forward(request, response);
 				session.setAttribute("id", id);
-				response.sendRedirect("admin/monthlySalesHistory.jsp");
+				response.sendRedirect("loginMain.jsp");
 				LOG.trace("관리자 로그인 성공");
 				break;
 			}

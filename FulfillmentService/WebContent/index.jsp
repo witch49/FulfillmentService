@@ -14,7 +14,7 @@
 
 <div class="container-fluid">
 	<div class="row">
-	 <div class="col-md-6 col-md-offset-3">
+		<div class="col-md-6 col-md-offset-3">
 		<div id="carousel-example-generic" class="carousel slide" data-ride="carousel">
 		  <!-- Indicators -->
 		  <ol class="carousel-indicators">
@@ -52,7 +52,7 @@
 		    <span class="sr-only">Next</span>
 		  </a>
 		</div>
-     </div>
+		</div>
  	</div>
  </div>
  

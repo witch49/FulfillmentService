@@ -48,23 +48,26 @@ create table invoice(
 	i_amount int(5),
 	i_orderDate datetime,
 	i_sId int(5),
+	i_tId int(5),
 	i_check varchar(1) default 'N',
 	primary key(i_id, i_consigneeTel, i_orderDate),
 	foreign key (i_pId, i_pName) references product(p_id, p_name),
-	foreign key (i_sId) references shopping_mall(s_id)
+	foreign key (i_sId) references shopping_mall(s_id),
+	foreign key (i_tId) references trans_company(t_id)
 ) auto_increment=100001 default charset=utf8;
+
+select i_id, i_consigneeName, i_orderDate, i_sId, i_tId, i_check from invoice;
 
 create table calculate_cost (
 	c_iId int(6),
 	c_iTel varchar(13),
 	c_iDate datetime,
-	c_sId int(5),
-	c_tId int(5),
-	primary key (c_iId, c_iTel, c_iDate),
-	foreign key (c_iId, c_iTel, c_iDate) references invoice(i_id, i_consigneeTel, i_orderDate),
-	foreign key (c_sId) references invoice(i_sId),
-	foreign key (c_tId) references trans_company(t_id)
-) default charset utf8;
+	c_sCost int(10),
+	c_oCost int(10),
+	c_tCost int(10) default 10000,
+	primary key (c_iTel, c_iDate),
+	foreign key (c_iId, c_iTel, c_iDate) references invoice(i_id, i_consigneeTel, i_orderDate) on update cascade
+) default charset=utf8;
 
 /*
 http://database.sarang.net/?inc=read&aid=851&criteria=mssql&subcrit=&id=&limit=&keyword=&page=
@@ -137,36 +140,40 @@ select * from trans_company;
 select * from shopping_mall;
 select * from invoice;
 
-insert into invoice(i_consigneeName, i_consigneeTel, i_consigneeAddr, i_pId, i_pName, i_amount, i_orderDate, i_sId)
- values('홍길동', '010-1111-2222', '수원시 장안구 정자1동', 2, '고려열전', 1, date_format('2019-04-28 13:00','%y-%m-%d %H:%i'), 30001);
-insert into invoice(i_consigneeName, i_consigneeTel, i_consigneeAddr, i_pId, i_pName, i_amount, i_orderDate, i_sId)
- values('홍길동', '010-1111-2222', '성남시 중원구 성남동', 3, '대단한 스트레칭', 2, date_format('2019-04-28 13:00','%y-%m-%d %H:%i'), 30001);
-insert into invoice(i_consigneeName, i_consigneeTel, i_consigneeAddr, i_pId, i_pName, i_amount, i_orderDate, i_sId)
- values('전우치', '010-2222-3333', '평택시 신평동', 12, '애견 패드', 2, date_format('2019-04-29 14:25','%y-%m-%d %H:%i'), 30002);
-insert into invoice(i_consigneeName, i_consigneeTel, i_consigneeAddr, i_pId, i_pName, i_amount, i_orderDate, i_sId)
- values('허균', '010-3333-4444', '천안시 중앙동', 15, '앰플', 4, date_format('2019-04-30 08:25','%y-%m-%d %H:%i'), 30003);
-insert into invoice(i_consigneeName, i_consigneeTel, i_consigneeAddr, i_pId, i_pName, i_amount, i_orderDate, i_sId)
- values('김철수', '010-4444-5555', '논산시 부창동', 24, '용과', 4, date_format('2019-04-30 09:25','%y-%m-%d %H:%i'), 30003);
-insert into invoice(i_consigneeName, i_consigneeTel, i_consigneeAddr, i_pId, i_pName, i_amount, i_orderDate, i_sId)
- values('김철수', '010-4444-5555', '대전시 서구 월평동', 26, '레몬', 5, date_format('2019-04-30 09:25','%y-%m-%d %H:%i'), 30003);
-insert into invoice(i_consigneeName, i_consigneeTel, i_consigneeAddr, i_pId, i_pName, i_amount, i_orderDate, i_sId)
- values('박철수', '010-5555-6666', '부산시 중구 대청동', 21, '토너', 3, date_format('2019-04-30 09:25','%y-%m-%d %H:%i'), 30003);
-insert into invoice(i_consigneeName, i_consigneeTel, i_consigneeAddr, i_pId, i_pName, i_amount, i_orderDate, i_sId)
- values('박철수', '010-5555-6666', '대구시 수성구 지산1동', 7, '프리모 레비의 말', 1, date_format('2019-04-30 16:25','%y-%m-%d %H:%i'), 30003);
-insert into invoice(i_consigneeName, i_consigneeTel, i_consigneeAddr, i_pId, i_pName, i_amount, i_orderDate, i_sId)
- values('홍영희', '010-6666-7777', '울산시 울주군 삼남면', 32, '마사지기구', 2, date_format('2019-05-01 12:25','%y-%m-%d %H:%i'), 30003);
-insert into invoice(i_consigneeName, i_consigneeTel, i_consigneeAddr, i_pId, i_pName, i_amount, i_orderDate, i_sId)
- values('홍지수', '010-7777-8888', '목포시 삼학동', 35, '정수기', 1, date_format('2019-05-02 08:25','%y-%m-%d %H:%i'), 30003);
-insert into invoice(i_consigneeName, i_consigneeTel, i_consigneeAddr, i_pId, i_pName, i_amount, i_orderDate, i_sId)
- values('김지영', '010-8888-9999', '여수시 삼산면', 19, '마스크', 10, date_format('2019-05-02 08:25','%y-%m-%d %H:%i'), 30003);
-insert into invoice(i_consigneeName, i_consigneeTel, i_consigneeAddr, i_pId, i_pName, i_amount, i_orderDate, i_sId)
- values('김수현', '010-9999-1111', '순천시 매곡동', 18, '로션', 2, date_format('2019-05-02 09:34','%y-%m-%d %H:%i'), 30003);
-insert into invoice(i_consigneeName, i_consigneeTel, i_consigneeAddr, i_pId, i_pName, i_amount, i_orderDate, i_sId)
- values('김수현', '010-9999-1111', '순천시 황전면', 21, '토너', 2, date_format('2019-05-02 08:34','%y-%m-%d %H:%i'), 30003);
-insert into invoice(i_consigneeName, i_consigneeTel, i_consigneeAddr, i_pId, i_pName, i_amount, i_orderDate, i_sId)
- values('김수현', '010-9999-1111', '대전시 동구', 21, '토너', 1, date_format('2019-05-02 09:39','%y-%m-%d %H:%i'), 30003);
-insert into invoice(i_consigneeName, i_consigneeTel, i_consigneeAddr, i_pId, i_pName, i_amount, i_orderDate, i_sId)
- values('박수현', '010-1212-1212', '대전시 유성구 궁동', 19, '마스크', 3, date_format('2019-05-02 11:39','%y-%m-%d %H:%i'), 30003);
+insert into invoice(i_consigneeName, i_consigneeTel, i_consigneeAddr, i_pId, i_pName, i_amount, i_orderDate, i_sId, i_tId)
+ values('홍길동', '010-1111-2222', '수원시 장안구 정자1동', 2, '고려열전', 1, date_format('2019-04-28 13:00','%y-%m-%d %H:%i'), 30001, 50001);
+insert into invoice(i_consigneeName, i_consigneeTel, i_consigneeAddr, i_pId, i_pName, i_amount, i_orderDate, i_sId, i_tId)
+ values('홍길동', '010-1111-2222', '성남시 중원구 성남동', 3, '대단한 스트레칭', 2, date_format('2019-04-28 13:00','%y-%m-%d %H:%i'), 30001, 50001);
+insert into invoice(i_consigneeName, i_consigneeTel, i_consigneeAddr, i_pId, i_pName, i_amount, i_orderDate, i_sId, i_tId)
+ values('전우치', '010-2222-3333', '평택시 신평동', 12, '애견 패드', 2, date_format('2019-04-29 14:25','%y-%m-%d %H:%i'), 30002, 50001);
+insert into invoice(i_consigneeName, i_consigneeTel, i_consigneeAddr, i_pId, i_pName, i_amount, i_orderDate, i_sId, i_tId)
+ values('허균', '010-3333-4444', '천안시 중앙동', 15, '앰플', 4, date_format('2019-04-30 08:25','%y-%m-%d %H:%i'), 30003, 50002);
+insert into invoice(i_consigneeName, i_consigneeTel, i_consigneeAddr, i_pId, i_pName, i_amount, i_orderDate, i_sId, i_tId)
+ values('김철수', '010-4444-5555', '논산시 부창동', 24, '용과', 4, date_format('2019-04-30 09:25','%y-%m-%d %H:%i'), 30003, 50002);
+insert into invoice(i_consigneeName, i_consigneeTel, i_consigneeAddr, i_pId, i_pName, i_amount, i_orderDate, i_sId, i_tId)
+ values('김철수', '010-4444-5555', '대전시 서구 월평동', 26, '레몬', 5, date_format('2019-04-30 09:25','%y-%m-%d %H:%i'), 30003, 50002);
+insert into invoice(i_consigneeName, i_consigneeTel, i_consigneeAddr, i_pId, i_pName, i_amount, i_orderDate, i_sId, i_tId)
+ values('박철수', '010-5555-6666', '부산시 중구 대청동', 21, '토너', 3, date_format('2019-04-30 09:25','%y-%m-%d %H:%i'), 30003, 50003);
+insert into invoice(i_consigneeName, i_consigneeTel, i_consigneeAddr, i_pId, i_pName, i_amount, i_orderDate, i_sId, i_tId)
+ values('박철수', '010-5555-6666', '대구시 수성구 지산1동', 7, '프리모 레비의 말', 1, date_format('2019-04-30 16:25','%y-%m-%d %H:%i'), 30003, 50003);
+insert into invoice(i_consigneeName, i_consigneeTel, i_consigneeAddr, i_pId, i_pName, i_amount, i_orderDate, i_sId, i_tId)
+ values('홍영희', '010-6666-7777', '울산시 울주군 삼남면', 32, '마사지기구', 2, date_format('2019-05-01 12:25','%y-%m-%d %H:%i'), 30003, 50003);
+insert into invoice(i_consigneeName, i_consigneeTel, i_consigneeAddr, i_pId, i_pName, i_amount, i_orderDate, i_sId, i_tId)
+ values('홍지수', '010-7777-8888', '목포시 삼학동', 35, '정수기', 1, date_format('2019-05-02 08:25','%y-%m-%d %H:%i'), 30003, 50004);
+insert into invoice(i_consigneeName, i_consigneeTel, i_consigneeAddr, i_pId, i_pName, i_amount, i_orderDate, i_sId, i_tId)
+ values('김지영', '010-8888-9999', '여수시 삼산면', 19, '마스크', 10, date_format('2019-05-02 08:25','%y-%m-%d %H:%i'), 30003, 50004);
+insert into invoice(i_consigneeName, i_consigneeTel, i_consigneeAddr, i_pId, i_pName, i_amount, i_orderDate, i_sId, i_tId)
+ values('김수현', '010-9999-1111', '순천시 매곡동', 18, '로션', 2, date_format('2019-05-02 09:34','%y-%m-%d %H:%i'), 30003, 50004);
+insert into invoice(i_consigneeName, i_consigneeTel, i_consigneeAddr, i_pId, i_pName, i_amount, i_orderDate, i_sId, i_tId)
+ values('김수현', '010-9999-1111', '순천시 황전면', 21, '토너', 2, date_format('2019-05-02 08:34','%y-%m-%d %H:%i'), 30003, 50004);
+insert into invoice(i_consigneeName, i_consigneeTel, i_consigneeAddr, i_pId, i_pName, i_amount, i_orderDate, i_sId, i_tId)
+ values('김수현', '010-9999-1111', '대전시 동구', 21, '토너', 1, date_format('2019-05-02 09:39','%y-%m-%d %H:%i'), 30003, 50002);
+insert into invoice(i_consigneeName, i_consigneeTel, i_consigneeAddr, i_pId, i_pName, i_amount, i_orderDate, i_sId, i_tId)
+ values('박수현', '010-1212-1212', '대전시 유성구 궁동', 19, '마스크', 3, date_format('2019-05-02 11:39','%y-%m-%d %H:%i'), 30003, 50002);
+insert into invoice(i_consigneeName, i_consigneeTel, i_consigneeAddr, i_pId, i_pName, i_amount, i_orderDate, i_sId, i_tId)
+ values('이수현', '010-1313-1313', '대전시 유성구 어은동', 19, '마스크', 5, date_format('2019-05-03 09:12','%y-%m-%d %H:%i'), 30003, 50002);
+ 
+
  
 desc invoice;
 
@@ -194,6 +201,7 @@ select * from invoice;
 select * from calculate_cost;
 
 
+
 /* invoice */
 /* 날짜 확인해서 만족하면 && 재고 물량이 10개 이상이라면 ->
   invoice check 를 Y로 상태 바꾸기 &  product의 amount를 갱신하기 */
@@ -203,26 +211,33 @@ update invoice as I inner join product as P on P.p_id=I.i_pId
  where P.p_amount - I.i_amount > 9
  and I.i_id = 100015
  and (
- 	(I.i_orderDate <= date_sub(now(), interval 1 day) and hour(I.i_orderDate) <= 18 )
+ 	(I.i_orderDate <= date_sub(now(), interval 1 day) and hour(I.i_orderDate) < 18 )
  	or (
- 	/*1-기록된 시간이 now-1일 && 오후 6시 이후
- 	2-기록된 시간이 now일 && 오전9시  이전
+ 	/*1-기록된 시간이 now-1일 && 오후 6시 이후 이거나
+ 	2-기록된 시간이 now일 && 오전9시  이전 이고
  	3-now시가 오전 9시 이후*/
  	 ((day(I.i_orderDate) = day(now()-1) and hour(I.i_orderDate) >= 18)
-	 or (day(I.i_orderDate) = day(now()) and hour(I.i_orderDate) <= 9))
+	 or (day(I.i_orderDate) = day(now()) and hour(I.i_orderDate) < 9))
 	 and (hour(now()) >= 9)
 	)
 	or (
 	/* 1-기록된 시간이 now일이고
-	2-기록된 시간이 오전 9시 이후이고 오후 6시 이전이고
+	2-기록된 시간이 오전 9시 이후이고 오후 6시 이전(포함x)이고
 	3-now가 오후 6시 이후*/
 	 day(I.i_orderDate) = day(now())
-	 and (hour(I.i_orderDate) >= 9 and hour(I.i_orderDate) <= 18)
+	 and (hour(I.i_orderDate) >= 9 and hour(I.i_orderDate) < 18)
 	 and (hour(now()) >= 18)
 	)
 );
  
- 
+
+
+
+select c_iId, c_iTel, c_iDate, c_sId from calculate_cost;
+
+
+
+
 select * from invoice;
 select * from product;
 select * from calculate_cost;
@@ -230,13 +245,23 @@ select hour(now());
 
 select (c_iId, c_iTel, c_iDate, c_sId) from calculate_cost where c_iId=100001;
  
- 
+/*
+쇼핑몰 : 대금 청구액은 (물품 가격*1.1 + 송장 1건당 10000원)
+구매처 : 지급해야 할 금액은 (물품 가격)
+운송사 : 지급해야 할 금액은 송장 1건당 (10000원)
+*/
+select ssss from calculate_cost as C
+ inner join invoice as I
+ inner join product as P
+
+
 
 /* calculate_cost */
 /* 비용 계산 테이블 값 추가하는 쿼리문 */
+/* csv 파일에서 그냥 직접 운송회사 아이디 입력하는 걸로 하기. 사용 안하는 쿼리문.
 insert into calculate_cost(c_iId, c_iTel, c_iDate, c_sId, c_tId)
  select i_id, i_consigneeTel, i_orderDate, i_sId, 50001 from invoice
  where i_id=100001 and i_check='Y'
  and (substr(i_consigneeAddr, 1, 3)='수원시' or substr(i_consigneeAddr, 1, 3)='성남시' or substr(i_consigneeAddr, 1, 3)='평택시');
-
+*/
 
