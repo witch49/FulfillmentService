@@ -201,15 +201,20 @@ select * from invoice;
 select * from calculate_cost;
 
 
+/* 월단위 판매내역(쇼핑몰) 출력 시 사용하는 쿼리문 */
+select C.c_iId, I.i_consigneeName, C.c_iTel, C.c_iDate, I.i_sId, C.c_sCost from calculate_cost as C
+ inner join invoice as I
+ on I.i_id=C.c_iId;
+
+
 
 /* invoice */
 /* 날짜 확인해서 만족하면 && 재고 물량이 10개 이상이라면 ->
   invoice check 를 Y로 상태 바꾸기 &  product의 amount를 갱신하기 */
-
 update invoice as I inner join product as P on P.p_id=I.i_pId
  set I.i_check='Y', P.p_amount=P.p_amount-I.i_amount
  where P.p_amount - I.i_amount > 9
- and I.i_id = 100015
+ and I.i_id = 100004
  and (
  	(I.i_orderDate <= date_sub(now(), interval 1 day) and hour(I.i_orderDate) < 18 )
  	or (
@@ -229,7 +234,168 @@ update invoice as I inner join product as P on P.p_id=I.i_pId
 	 and (hour(now()) >= 18)
 	)
 );
+
+desc calculate_cost;
+select * from calculate_cost;
+select * from invoice;
+select * from shopping_mall;
+
+
+/* 단순히 물품 가격만을 출력 */
+select I.i_id, P.p_name, I.i_consigneeTel, I.i_orderDate, P.p_price*I.i_amount from product as P
+ inner join invoice as I on I.i_pId=P.p_id
+ order by I.i_id;
  
+create table test(
+ tempUK int(10) unique key auto_increment,
+ tel varchar(13),
+ ordertime datetime,
+ shoppingcost int(10),
+ ordercost int(10),
+ transcost int(10) default 10000,
+ primary key(tel, ordertime)
+) auto_increment=1, default charset=utf8;
+
+drop table test;
+
+/* update 한 이후에 Y인 부분을 cost 테이블에 추가하도록 하기 */
+/*
+쇼핑몰 : 대금 청구액은 (물품 가격*1.1 + 송장 1건당 10000원)
+구매처 : 지급해야 할 금액은 (물품 가격)
+운송사 : 지급해야 할 금액은 송장 1건당 (10000원) - default값이 10000원
+*/
+insert into test(tel, ordertime, shoppingcost, ordercost)
+ select I.i_consigneeTel, I.i_orderDate, sum(P.p_price*I.i_amount), (sum(P.p_price*I.i_amount)*1.1 + 10000) from invoice as I
+ inner join product as P on I.i_pId=P.p_id and I.i_check='Y'
+ group by I.i_consigneeTel, I.i_orderDate order by I.i_id
+ where not exists (
+  select i_consigneeTel, i_orderDate from invoice
+   inner join test on test.tel=invoice.i_consigneeTel and test.ordertime=invoice.i_orderDate
+   group by invoice.i_consigneeTel, invoice.i_orderDate
+ );
+
+
+select * from test order by tempUK;
+ 
+insert into calculate_cost() values 
+select I.i_consigneeTel, I.i_orderDate, sum(P.p_price*I.i_amount) as shoppCost from invoice as I
+ inner join product as P on I.i_pId=P.p_id and I.i_check='Y'
+ group by I.i_consigneeTel, I.i_orderDate order by I.i_id;
+
+
+select I.i_consigneeTel, I.i_orderDate, sum(P.p_price*I.i_amount) as shoppCost from invoice as I
+ inner join product as P on I.i_pId=P.p_id
+ group by I.i_consigneeTel, I.i_orderDate order by I.i_id;
+ 
+
+select count(*) from invoice group by i_consigneeTel, i_orderDate order by i_id;
+
+select group_concat(i_pId separator ','), group_concat(i_amount separator ',') from invoice
+ group by i_consigneeTel, i_orderDate;
+
+
+insert into calculate_cost(c_iId, c_iTel, c_iDate, c_sCost, c_oCost)
+ select C.c_iId, C.c_iTel, C.c_iDate from invoice as I inner join calculate_cost as C on I.i_check='Y' and 
+ 
+ select i_id, i_consigneeTel, i_orderDate from invoice where i_check='Y' and i_id=100001
+ select s cost
+ select o cost;
+
+select group_concat(invoice separator ',') from invoice
+ group by 
+
+ select C.c_iTel, C.c_iDate from invoice as I inner join calculate_cost as C on I.i_check='Y'
+  and (select distinct concat(i_consigneeTel, ',', i_orderDate) from invoice);
+
+
+select distinct concat(i_consigneeTel, ',', i_orderDate) from invoice where i_check='Y';
+
+
+create table test (
+	t_str varchar(100) primary key,
+	t_shopCost int(10) 
+) default charset=utf8;
+
+select * from test;
+drop table test;
+insert ignore into test(t_str) select distinct concat(i_consigneeTel, ',', i_orderDate) from invoice where i_check='Y';
+
+select I.i_pId, I.i_amount, P.p_price, (I.i_amount*P.p_price) from invoice as I
+ inner join product as P
+ on I.i_pId=P.p_id;
+
+
+update test as T,
+ inner join invoice as I
+  on T.t_str=concat(I.i_consigneeTel, ',', I.i_orderDate)
+ inner join product as P
+  on P.p_id=I.i_pId
+ set T.t_shopCost = sum(I.i_amount*P.p_price)
+ where T.t_str=concat(I.i_consigneeTel, ',', I.i_orderDate);
+
+select * from invoice as I
+ inner join test as T on concat(I.i_consigneeTel, ',', I.i_orderDate)=T.t_str;
+
+
+update test
+ set t_shopCost=
+ select sum(I.i_amount*P.p_price) from invoice as I
+ inner join product as P
+  on I.i_pId=P.p_id
+ inner join test as T
+  on concat(I.i_consigneeTel, ',', I.i_orderDate)=T.t_str
+ where T.t_str=concat(I.i_consigneeTel, ',', I.i_orderDate);
+
+
+select * from invoice where concat(i_consigneeTel, ',', i_orderDate)='010-1111-2222,2019-04-28 13:00:00';
+
+
+select * from invoice where i_id=100001;
+select * from test;
+
+select substr(t_str from 1 for 13) from test; /* 전화번호 */
+select substr(t_str from 15) from test; /* 날짜 */
+
+select * from test where substr(t_str from 1 for 13)='010-1111-2222';
+
+select * from invoice inner join test
+ where substr(test.t_str from 1 for 13)=invoice.i_consigneeTel
+  and substr(test.t_str from 15)=invoice.i_orderDate
+  and concat(invoice.i_consigneeTel, ',', invoice.i_orderDate)=test.t_str;
+
+
+select I.i_pId, I.i_amount, P.p_price, (I.i_amount*P.p_price) from invoice as I
+ inner join product as P
+ on I.i_pId=P.p_id;
+
+ 
+select sum(I.i_amount*P.p_price), P.p_oId from invoice as I
+ inner join product as P
+  on I.i_pId=P.p_id
+ inner join test as T
+  on concat(I.i_consigneeTel, ',', I.i_orderDate)=T.t_str;
+ 
+ 
+
+
+select count(distinct concat(i_consigneeTel, ',', i_orderDate)) from invoice;
+
+select i_pId, i_amount from invoice where distinct concat(i_consigneeTel, ',', i_orderDate);
+
+
+
+where distinct concat(i_consigneeTel, ',', i_orderDate)
+
+
+
+
+select invoice as I inner join test as T
+
+
+
+
+
+select concat('하이', ',', now());
 
 
 

@@ -32,15 +32,12 @@
 			</div>
 		
 			<br><hr><br>
-		 	참고해야 하는 사이트<br>
-		 	http://bootstrapk.com/components/#navbar
-		 	<br><br>
 		 	<div class="col-xs-11" >
 		 	<table class="table table-bordered">
-  				<tr><th>송장ID</th><th>전화번호</th><th>주문날짜</th><th>쇼핑몰ID</th><th>금액</th></tr>
+  				<tr><th>송장ID</th><th>전화번호</th><th>주문날짜</th><th>쇼핑몰 대금 청구 금액</th></tr>
   				<c:set var="ccList" value="${requestScope.calList}"/>
 				<c:forEach var="cc" items="${ccList}">
-  				<tr><td>${cc.c_iId}</td><td>${cc.c_iTel}</td><td>${cc.c_iDate}</td><td>${cc.c_sId}</td><td></td></tr>
+  				<tr><td>${cc.c_iId}</td><td>${cc.c_iTel}</td><td>${cc.c_iDate}</td><td>${cc.c_sCost}</td><td></td></tr>
   				</c:forEach>
 			</table>
 		 	</div>

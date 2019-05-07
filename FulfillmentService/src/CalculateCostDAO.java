@@ -29,10 +29,10 @@ public class CalculateCostDAO {
         } 
 	}
 	
-	/* 1 - 송장 조회(송장ID 순서대로 명단 출력) */
+	/* 1 - 관리자 : 월단위 판매내역(쇼핑몰) 확인하는 부분 */
 	public List<CalculateCostDTO> selectAll() {
 		LOG.trace("CalculateCostDAO selectAll() start");
-		String sql = "select c_iId, c_iTel, c_iDate, c_sId from calculate_cost;";
+		String sql = "select c_iId, c_iTel, c_iDate, c_sCost from calculate_cost;";
 		
 		//String sql = "select c_iId, c_i from calculate_cost order by id;";
 		List<CalculateCostDTO> iList = selectCondition(sql);
@@ -55,7 +55,7 @@ public class CalculateCostDAO {
 				c.setC_iId(rs.getInt(1));
 				c.setC_iTel(rs.getString(2));
 				c.setC_iDate(rs.getString(3).substring(0, 16));
-				c.setC_sId(rs.getInt(4));
+				c.setC_sCost(rs.getInt(4));
 				list.add(c);
 			}
 		} catch (Exception e) {

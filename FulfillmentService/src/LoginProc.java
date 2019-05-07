@@ -40,6 +40,9 @@ public class LoginProc extends HttpServlet {
 		HttpSession session = request.getSession();
 		RequestDispatcher rd = null;
 		TransCompanyDAO tDao = null;
+		TransCompanyDTO tDto = null;
+		OrderCompanyDAO oDao = null;
+		OrderCompanyDTO oDto = null;
 		
 		
 		switch(action) {
@@ -61,8 +64,8 @@ public class LoginProc extends HttpServlet {
 				break;
 			}
 			
-			// id 범위가 30000에서 50000 사이인 경우 쇼핑몰 아이디
-			if (Integer.parseInt(id) > 30000 && Integer.parseInt(id) < 50001) {
+			// id 범위가 50000에서 70000 사이인 경우 운송회사 아이디
+			if (Integer.parseInt(id) > 50000 && Integer.parseInt(id) < 70001) {
 				tDao = new TransCompanyDAO();
 				int result = tDao.verifyLogin(Integer.parseInt(id), password);
 				
@@ -83,27 +86,57 @@ public class LoginProc extends HttpServlet {
 					errorMessage = "";
 				}
 				if (result == TransCompanyDAO.ID_PASSWORD_MATCH) {
+					tDto = tDao.searchById(Integer.parseInt(id));
 					session.setAttribute("id", id);
-					response.sendRedirect("temp.jsp");
-					LOG.trace("쇼핑몰 회사 로그인 성공");
+					session.setAttribute("memberName", tDto.gettName());
+					response.sendRedirect("cLoginMain.jsp");
+					LOG.trace("운송 회사 로그인 성공");
 					break;
 				} else {
 					request.setAttribute("message", errorMessage);
 					request.setAttribute("url", "login.jsp");
 					rd = request.getRequestDispatcher("alertMsg.jsp");
 					rd.forward(request, response);
-					LOG.trace("쇼핑몰 회사 로그인 성공 - 패스워드 틀림");
+					LOG.trace("운송 회사 로그인 성공 - 패스워드 틀림");
 				}
 			}
 			
-			// id 범위가 50001에서 70000 사이인 경우 운송 회사 아이디
-			if (Integer.parseInt(id) > 50000 && Integer.parseInt(id) < 70001) {
-				session.setAttribute("id", id);
-				response.sendRedirect("temp.jsp");
-				LOG.trace("운송 회사 로그인 성공");
-				break;
+			// id 범위가 70001에서 90000 사이인 경우 구매 회사 아이디
+			if (Integer.parseInt(id) > 70000 && Integer.parseInt(id) < 90001) {
+				oDao = new OrderCompanyDAO();
+				int result = oDao.verifyLogin(Integer.parseInt(id), password);
+				
+				switch (result) {
+				case OrderCompanyDAO.ID_PASSWORD_MATCH:
+					errorMessage = "";
+					break;
+				case OrderCompanyDAO.ID_DOES_NOT_EXIST:
+					errorMessage = "없는 아이디";
+					break;
+				case OrderCompanyDAO.PASSWORD_IS_WRONG:
+					errorMessage = "패스워드 오류";
+					break;
+				case OrderCompanyDAO.DATABASE_ERROR:
+					errorMessage = "DB 오류";
+					break;
+				default:
+					errorMessage = "";
+				}
+				if (result == OrderCompanyDAO.ID_PASSWORD_MATCH) {
+					oDto = oDao.searchById(Integer.parseInt(id));
+					session.setAttribute("id", id);
+					session.setAttribute("memberName", oDto.getoName());
+					response.sendRedirect("cLoginMain.jsp");
+					LOG.trace("구매 회사 로그인 성공");
+					break;
+				} else {
+					request.setAttribute("message", errorMessage);
+					request.setAttribute("url", "login.jsp");
+					rd = request.getRequestDispatcher("alertMsg.jsp");
+					rd.forward(request, response);
+					LOG.trace("구매 회사 로그인 성공 - 패스워드 틀림");
+				}
 			}
-			
 			break;
 		
 		////////////////////////////////////////////////////////////////////////////////////

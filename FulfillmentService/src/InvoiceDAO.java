@@ -45,8 +45,10 @@ public class InvoiceDAO {
 				i.setiId(rs.getInt(1));
 				i.setiConsigneeName(rs.getString(2));
 				i.setiOrderDate(rs.getString(3).substring(0, 16));
+				//LOG.trace("날짜"+rs.getString(3));
 				i.setI_sId(rs.getInt(4));
-				i.setiCheck(rs.getString(5));
+				i.setI_tId(rs.getInt(5));
+				i.setiCheck(rs.getString(6));
 				invoiceList.add(i);
 			}
 		} catch (Exception e) {
@@ -62,6 +64,46 @@ public class InvoiceDAO {
 		}
 		LOG.trace("InvoiceDAO selectInvoiceAll() success");
 		return invoiceList;
+	}
+	
+	public List<InvoiceDTO> selectInvoiceDatailAll(int iId) {
+		LOG.trace("InvoiceDAO selectInvoiceDatailAll() start");
+		PreparedStatement pStmt = null;
+		List<InvoiceDTO> invoiceDetailList = new ArrayList<>();
+		String sql = "select * from invoice where i_id=?;";
+		
+		try {
+			pStmt = conn.prepareStatement(sql);
+			pStmt.setInt(1, iId);
+			ResultSet rs = pStmt.executeQuery();
+			while (rs.next()) {
+				InvoiceDTO i = new InvoiceDTO();
+				i.setiId(rs.getInt(1));
+				i.setiConsigneeName(rs.getString(2));
+				i.setiConsigneeTel(rs.getString(3));
+				i.setiConsigneeAddr(rs.getString(4));
+				i.setI_pId(rs.getInt(5));
+				i.setI_pName(rs.getString(6));
+				i.setiAmount(rs.getInt(7));
+				i.setiOrderDate( rs.getString(8).substring(0, 16));
+				i.setI_sId(rs.getInt(9));
+				i.setI_tId(rs.getInt(10));
+				i.setiCheck(rs.getString(11));
+				invoiceDetailList.add(i);
+			}
+		} catch (Exception e) {
+			LOG.trace("InvoiceDAO selectInvoiceDatailAll() ERROR");
+			e.printStackTrace();
+		} finally {
+			try {
+				if (pStmt != null && !pStmt.isClosed())
+					pStmt.close();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		LOG.trace("InvoiceDAO selectInvoiceDatailAll() success");
+		return invoiceDetailList;
 	}
 	
 	

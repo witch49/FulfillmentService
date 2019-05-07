@@ -17,13 +17,10 @@
       <!-- Collect the nav links, forms, and other content for toggling -->
       <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
         <ul class="nav navbar-nav navbar-right">
-          <c:if test="${id == null }">
-          <li><a href="login.jsp">로그인</a></li>
-          </c:if>
-          <c:if test="${id.equals('admin') }">
-         	 <p class="navbar-text">관리자님 환영합니다</p>
+          <c:if test="${id > 30000 && id < 80000 }">
+			<p class="navbar-text">${memberName}님 환영합니다</p>
           	<li><a href="/FulfillmentService/LoginProc?action=logout">로그아웃</a></li>
-          </c:if>
+		  </c:if>
         </ul>
       </div><!-- /.navbar-collapse -->
     </div><!-- /.container-fluid -->

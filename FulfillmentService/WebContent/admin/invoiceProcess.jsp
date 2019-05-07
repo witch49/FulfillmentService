@@ -8,7 +8,6 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link href="Resources/css/bootstrap.min.css" rel="stylesheet">
-
 <title>Fulfillment Service</title>
 </head>
 <body>
@@ -27,11 +26,15 @@
 		 	https://fooplugins.github.io/FooTable/docs/examples/basic/row-toggle.html<br>
 		 	https://embed.plnkr.co/plunk/psPAl0
 		 	<br>
+		 	
+	 	
+		 	
 		 	<div class="col-xs-11" >
 		 		<button type="button" class="btn btn-default" style="float: right;">송장처리</button>
 		 		<br><br>
 		 		
-		 		<table class="table table-bordered table table-hover">
+		 		
+		 		<table class="table table-striped">
 	  				<tr>
 	  					<th>송장id</th>
 	  					<th>수신인 성함</th>
@@ -43,7 +46,7 @@
 	  				<c:set var="iList" value="${requestScope.invoiceList}"/>
 					<c:forEach var="i" items="${iList}">
 	  					<tr>
-	  						<td><a href='#'>${i.iId}</a></td>
+	  						<td><a href='/FulfillmentService/CalculateCostProc?action=invoiceCheckDetail&iId=${i.iId}'>${i.iId}</a></td>
 	  						<td>${i.iConsigneeName}</td>
 	  						<td>${i.iOrderDate}</td>
 	  						<td>${i.i_sId}</td>
@@ -56,6 +59,7 @@
 			 </div>
  		</div>
 	 </div>
+	 <br><br><br>
  
 <jsp:include page="/admin/common/footer.jsp" />
 

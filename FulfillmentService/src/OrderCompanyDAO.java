@@ -1,23 +1,25 @@
-import java.io.*;
-import java.util.*;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class TransCompanyDAO {
+public class OrderCompanyDAO {
 	public static final int ID_PASSWORD_MATCH = 1;
 	public static final int ID_DOES_NOT_EXIST = 2;
 	public static final int PASSWORD_IS_WRONG = 3;
 	public static final int DATABASE_ERROR = -1;
-	private static final Logger LOG = LoggerFactory.getLogger(TransCompanyDAO.class);
+	private static final Logger LOG = LoggerFactory.getLogger(OrderCompanyDAO.class);
 
 	private Connection conn;
 	private static final String USERNAME = "javauser";
 	private static final String PASSWORD = "javapass";
 	private static final String URL = "jdbc:mysql://localhost:3306/fulfillment?verifyServerCertificate=false&useSSL=false";
 	
-	public TransCompanyDAO() {
+	public OrderCompanyDAO() {
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
 			conn = DriverManager.getConnection(URL, USERNAME, PASSWORD);
@@ -36,27 +38,27 @@ public class TransCompanyDAO {
 	}
 	
 	/* 회원 로그인 (id, password 검증) */
-	public int verifyLogin(int tId, String tPwd) {
-		LOG.trace("TransCompanyDAO verifyLogin() start");
-		String query = "select t_pwd from trans_company where t_id=?";
+	public int verifyLogin(int oId, String oPwd) {
+		LOG.trace("OrderCompanyDAO verifyLogin() start");
+		String query = "select o_pwd from order_company where o_id=?";
 		PreparedStatement pStmt = null;
 		ResultSet rs = null;
 		String password = "";
 		try {
 			pStmt = conn.prepareStatement(query);
-			pStmt.setInt(1, tId);
+			pStmt.setInt(1, oId);
 			rs = pStmt.executeQuery();
 			while (rs.next()) {
 				password = rs.getString(1);
-				if (tPwd.equals(password)) {
-					LOG.trace("TransCompanyDAO verifyLogin() success - login success");
+				if (oPwd.equals(password)) {
+					LOG.trace("OrderCompanyDAO verifyLogin() success - login success");
 					return ID_PASSWORD_MATCH; // 로그인 성공
 				} else {
-					LOG.trace("TransCompanyDAO verifyLogin() success - password ERROR!!");
+					LOG.trace("OrderCompanyDAO verifyLogin() success - password ERROR!!");
 					return PASSWORD_IS_WRONG;
 				}
 			}
-			LOG.trace("TransCompanyDAO verifyLogin() success - ID ERROR!!");
+			LOG.trace("OrderCompanyDAO verifyLogin() success - ID ERROR!!");
 			return ID_DOES_NOT_EXIST;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -69,26 +71,26 @@ public class TransCompanyDAO {
 				se.printStackTrace();
 			}
 		}
-		LOG.trace("TransCompanyDAO verifyLogin() fail - DB ERROR!!");
+		LOG.trace("OrderCompanyDAO verifyLogin() fail - DB ERROR!!");
 		return DATABASE_ERROR;
 	}
 	
 	/* 주어진 query에 해당하는 데이터 목록 출력 */
-	public TransCompanyDTO selectOne(String query) {
-		LOG.trace("TransCompanyDTO selectOne start");
+	public OrderCompanyDTO selectOne(String query) {
+		LOG.trace("OrderCompanyDTO selectOne start");
 		PreparedStatement pStmt= null;
-		TransCompanyDTO member = new TransCompanyDTO();
+		OrderCompanyDTO member = new OrderCompanyDTO();
 		try {
 			pStmt = conn.prepareStatement(query);
 			ResultSet rs = pStmt.executeQuery();
 			
 			while (rs.next()) {
-				member.settId(rs.getInt(1));
-				member.settPwd(rs.getString(2));
-				member.settName(rs.getString(3));
+				member.setoId(rs.getInt(1));
+				member.setoPwd(rs.getString(2));
+				member.setoName(rs.getString(3));
 			}
 		} catch (Exception e) {
-			LOG.trace("TransCompanyDTO selectOne() fail - DB ERROR!!");
+			LOG.trace("OrderCompanyDTO selectOne() fail - DB ERROR!!");
 	        e.printStackTrace();
 	    } finally {
 	        try {
@@ -98,15 +100,14 @@ public class TransCompanyDAO {
                 se.printStackTrace();
             }
 	    }
-		LOG.trace("TransCompanyDTO selectOne() success");
+		LOG.trace("OrderCompanyDTO selectOne() success");
 		return member;
 	}
 	
-	/* t_id 출력 */
-	public TransCompanyDTO searchById(int tId) {
-    	String query = "select * from trans_company where t_id=" + tId + ";";
-    	TransCompanyDTO tDto = selectOne(query);
-    	return tDto;
+	/* o_id 출력 */
+	public OrderCompanyDTO searchById(int oId) {
+    	String query = "select * from order_company where o_id=" + oId + ";";
+    	OrderCompanyDTO oDto = selectOne(query);
+    	return oDto;
     }
-	
 }
