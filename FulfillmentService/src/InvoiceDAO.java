@@ -35,7 +35,7 @@ public class InvoiceDAO {
 		LOG.trace("InvoiceDAO selectInvoiceAll() start");
 		PreparedStatement pStmt = null;
 		List<InvoiceDTO> invoiceList = new ArrayList<>();
-		String sql = "select i_id, i_consigneeName, i_orderDate, i_sId, i_tId, i_check from invoice;";
+		String sql = "select i_id, i_consigneeName, i_orderDate, i_sId, i_tId, i_check from invoice order by i_orderDate;";
 		
 		try {
 			pStmt = conn.prepareStatement(sql);
@@ -104,6 +104,45 @@ public class InvoiceDAO {
 		}
 		LOG.trace("InvoiceDAO selectInvoiceDatailAll() success");
 		return invoiceDetailList;
+	}
+	
+	
+	/* 송장 처리 버튼을 누르면 일어나는 부분 */
+	public void updateInvoiceAll() {
+		LOG.trace("InvoiceDAO updateInvoiceAll() start");
+		PreparedStatement pStmt = null;
+		String sql = "update invoice as I inner join product as P on P.p_id=I.i_pId" + 
+				" set I.i_check='Y', P.p_amount=P.p_amount-I.i_amount" + 
+				" where P.p_amount - I.i_amount > 9" + 
+				" and (" + 
+				" 	(I.i_orderDate <= date_sub(now(), interval 1 day) and hour(I.i_orderDate) < 18 )" + 
+				" 	or (" + 
+				" 	 ((day(I.i_orderDate) = day(now()-1) and hour(I.i_orderDate) >= 18)" + 
+				"	 or (day(I.i_orderDate) = day(now()) and hour(I.i_orderDate) < 9))" + 
+				"	 and (hour(now()) >= 9)" + 
+				"	)" + 
+				"	or (" + 
+				"	 day(I.i_orderDate) = day(now())" + 
+				"	 and (hour(I.i_orderDate) >= 9 and hour(I.i_orderDate) < 18)" + 
+				"	 and (hour(now()) >= 18)" + 
+				"	)" + 
+				");";
+		
+		try {
+			pStmt = conn.prepareStatement(sql);
+			pStmt.executeUpdate();
+		} catch (Exception e) {
+			LOG.trace("InvoiceDAO updateInvoiceAll() ERROR");
+			e.printStackTrace();
+		} finally {
+			try {
+				if (pStmt != null && !pStmt.isClosed())
+					pStmt.close();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		LOG.trace("InvoiceDAO updateInvoiceAll() success");
 	}
 	
 	

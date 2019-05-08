@@ -19,8 +19,33 @@
 	
 		<div class="col-xs-10">
 			<p><a href="#animalGoods">animalGoods</a>&nbsp;|&nbsp;<a href="#book">book</a>&nbsp;|&nbsp;<a href="#cosmetic">cosmetic</a>&nbsp;|&nbsp;<a href="#fruit">fruit</a>&nbsp;|&nbsp;<a href="#homeAppliances">homeAppliances</a></p>
-				<h3 id="animalGoods">animalGoods</h3>
-				<hr>
+				
+
+
+			<h3 id="animalGoods">animalGoods</h3>
+			<hr>
+			<div class="ani-goods" style="display: flex;">
+			<div class="thumbnail" style="float:left;">
+			<table class="table table-striped">
+					<c:set var="pList" value="${requestScope.pList}"/>
+					<c:forEach var="p" items="${pList}">
+		        		<tr>
+	  						<td><img onclick='/FulfillmentService/ProductProc?action=detailItem' src='${p.pImg}'></img></td>
+	  						<td>${p.pImg}==${p.pImg.toString()}</td>
+	  						<td>${p.pName}</td>
+	  						<td>${p.pPrice}원</td>
+	  					</tr>
+		        	</c:forEach>
+		        </table>
+		  		</div>
+		  		</div>
+
+
+
+
+
+
+
 				<div class="ani-goods" style="display: flex;">
 				<div class="thumbnail" style="float:left;">
 					

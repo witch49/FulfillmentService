@@ -8,16 +8,7 @@
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link href="Resources/css/bootstrap.min.css" rel="stylesheet">
-		<style type="text/css">
-   			strong {
-		        color:#3b3494;
-		        font-weight: 700;
-		    }
-		  	span {
-		  	    color: initial;
-		  	    font-size: 1.1em;
-		  	}
-		</style>
+	<link href="Resources/css/invoiceProcessDetail.css" rel="stylesheet">
 	<title>Fulfillment Service</title>
 </head>
 <body>
@@ -28,7 +19,7 @@
 		<jsp:include page="/admin/common/navigator.jsp"/>
 	
 		<div class="col-sm-9 col-md-10  main">
-		 	<h3>관리자 - 송장처리 상세화면</h3>
+		 	<h3>송장 처리 상세화면</h3>
 			<hr>
 		 		<div class="col-xs-11">
 		 		<br><br>
@@ -37,11 +28,11 @@
 		  				<c:forEach var="i" items="${iDetailList}">
 		  				<c:if test="${i.iId == requestScope.iId }">
 
-							<div class="panel panel-default">
+							<div class="panel panel-primary">
 							  <div class="panel-heading">
-							    <h3 class="panel-title"><strong>&emsp;&emsp;송장id</strong>&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&thinsp;<span>${i.iId}</span></h3>
+							    <h3 class="panel-title"><strong>&emsp;&emsp;송장id</strong>&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&thinsp;<strong>${i.iId}</strong></h3>
 							  </div>
-							  <div class="panel-body"   style="background: gainsboro";>
+							  <div class="panel-body">
 							    <strong>&emsp;&emsp;수신인 성함</strong>&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;<span>${i.iConsigneeName}</span><br>
 			  					<strong>&emsp;&emsp;수신인 연락처</strong>&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;<span>${i.iConsigneeTel}</span><br>
 			  					<strong>&emsp;&emsp;수신인 주소</strong>&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;<span>${i.iConsigneeAddr}</span><br>
@@ -58,7 +49,7 @@
 	  				</c:forEach>
 				<br>
 				<div class="col-xs-6">
-					<button type="button" class="btn btn-default" 
+					<button type="button" class="btn btn-info" 
 					onclick="location.href='CalculateCostProc?action=invoiceCheck'">목록으로</button>
 				</div>
 			</div>

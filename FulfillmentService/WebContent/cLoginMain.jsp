@@ -11,7 +11,7 @@
 <title>Fulfillment Service</title>
 </head>
 <body>
-<jsp:include page="cHeader.jsp" />
+<jsp:include page="common/cHeader.jsp" />
 
 <div class="container-fluid">
 	<div class="row">

@@ -16,18 +16,16 @@
 <div class="container-fluid">
 	<div class="row">
 		<jsp:include page="/admin/common/navigator.jsp"/>
-	
-		<div class="col-sm-9 col-md-10  main">
-				<div class="jumbotron">
+		<div class="col-sm-10  main">
+			<div class="jumbotron">
 		 		<h1>방문을 환영합니다</h1>
 		 		<hr>
 		 		<h3>로그인 메인 출력 화면</h3>
-				</div>
-		 <img src="admin/img/loginMain.png" alt="loginMain">
+			</div>
 		 </div>
-		 
-		 
-		 
+		<div>
+		 	<img src="admin/img/loginMain.png" alt="loginMain">
+		</div>
  	</div>
  </div>
  

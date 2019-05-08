@@ -51,30 +51,61 @@ public class CalculateCostProc extends HttpServlet {
 		
 		switch(action) {
 		/////////////////////////////////////////////////////////////////
-		case "calculate":
-			LOG.trace("calculate 시작");
+		case "calculateShop":	// 월단위 판매 내역(쇼핑몰) 화면으로 이동
+			LOG.trace("calculateShop 시작");
 
 			//if(!request.getParameter("id").equals("")) {
 			//	id = Integer.parseInt(request.getParameter("id"));
 			//}
 			cDao = new CalculateCostDAO();
-			calList = cDao.selectAll();
-			//cDto = (CalculateCostDTO) cDao.selectAll();
+			cDao.deleteDBTable();
+			cDao.insertDBTable();
+			calList = cDao.selectAllShopping();
+			// cDto = (CalculateCostDTO) cDao.selectAll();
 
-			
 			request.setAttribute("calList", calList);
 			rd = request.getRequestDispatcher("admin/monthlySalesHistory.jsp");
 			rd.forward(request, response);
-			LOG.trace("calculate 성공");
+			LOG.trace("calculateShop 성공");
 			break;
-			
-			/////////////////////////////////////////////////////////////////
-		case "invoiceCheck":	// 관리자 - 송장 처리 화면으로 이동하는 부분
+
+		/////////////////////////////////////////////////////////////////
+		case "calculateOrder": // 월단위 발주 내역(구매처) 화면으로 이동
+			LOG.trace("calculateOrder 시작");
+
+			cDao = new CalculateCostDAO();
+			cDao.deleteDBTable();
+			cDao.insertDBTable();
+			calList = cDao.selectAllOrder();
+
+			request.setAttribute("calList", calList);
+			rd = request.getRequestDispatcher("admin/monthlyOrderHistory.jsp");
+			rd.forward(request, response);
+			LOG.trace("calculateOrder 성공");
+			break;
+
+		/////////////////////////////////////////////////////////////////
+		case "calculateTransit": // 월단위 운송 내역(운송 회사) 화면으로 이동
+			LOG.trace("calculateTransit 시작");
+
+			cDao = new CalculateCostDAO();
+			cDao.deleteDBTable();
+			cDao.insertDBTable();
+			calList = cDao.selectAllTrans();
+
+			request.setAttribute("calList", calList);
+			rd = request.getRequestDispatcher("admin/monthlyTransitHistory.jsp");
+			rd.forward(request, response);
+			LOG.trace("calculateTransit 성공");
+			break;
+
+		/////////////////////////////////////////////////////////////////
+		case "invoiceCheck": // 관리자 - 송장 처리 화면으로 이동하는 부분
 			LOG.trace("관리자 - 송장 처리 화면으로 넘어가기 start");
 			iDao = new InvoiceDAO();
-			
+
 			invoiceList = iDao.selectInvoiceAll();
-			
+
 			request.setAttribute("invoiceList", invoiceList);
 			rd = request.getRequestDispatcher("admin/invoiceProcess.jsp");
 			rd.forward(request, response);
@@ -96,6 +127,23 @@ public class CalculateCostProc extends HttpServlet {
 			rd = request.getRequestDispatcher("admin/invoiceProcessDetail.jsp");
 			rd.forward(request, response);
 			LOG.trace("관리자 - 송장 처리 상세화면으로 넘어가기 success");
+			break;
+			
+		/////////////////////////////////////////////////////////////////
+			
+		case "invoiceUpdate":	// 송장 처리 화면에서 송장 처리 버튼을 누르면 일어나는 부분
+			LOG.trace("invoiceUpdate start");
+			iDao = new InvoiceDAO();
+			iDao.updateInvoiceAll();
+
+			//invoiceList = request.getParameter("invoiceList");
+			
+			request.setAttribute("invoiceList", invoiceList);
+			
+			rd = request.getRequestDispatcher("admin/invoiceProcess.jsp");
+			rd.forward(request, response);
+			LOG.trace("invoiceUpdate 성공");
+			
 			break;
 			
 		/////////////////////////////////////////////////////////////////

@@ -20,7 +20,7 @@
 	
 		<div class="col-sm-9 col-md-10  main">
 		 	<div class="col-md-7">
-		 		<h3>관리자 - 월단위 판매내역 출력하는 화면</h3>
+		 		<h3>월단위 판매내역(쇼핑몰)</h3>
 			</div>
 		 	<div class="col-md-5">
 				<form action="../control/adminControl.jsp?action=dailySales" class="form-horizontal" method="post">
@@ -30,14 +30,23 @@
 					<input name="startDate" id="startDate" class="date-picker" />
 				</form>
 			</div>
-		
-			<br><hr><br>
+
+			<br><br>
+			<hr>
+			<p>쇼핑몰 대금 청구액을 확인하는 화면입니다.</p>
+			<br>
 		 	<div class="col-xs-11" >
-		 	<table class="table table-bordered">
-  				<tr><th>송장ID</th><th>전화번호</th><th>주문날짜</th><th>쇼핑몰 대금 청구 금액</th></tr>
+		 	<table class="table table-hover">
+  				<tr><th>쇼핑몰 id</th><th>쇼핑몰 이름</th><th>쇼핑몰 대금 청구 금액(원)</th><th>주문자 전화번호</th><th>주문날짜</th></tr>
   				<c:set var="ccList" value="${requestScope.calList}"/>
 				<c:forEach var="cc" items="${ccList}">
-  				<tr><td>${cc.c_iId}</td><td>${cc.c_iTel}</td><td>${cc.c_iDate}</td><td>${cc.c_sCost}</td><td></td></tr>
+  					<tr>
+  						<td>${cc.c_comId}</td>
+	  					<td>${cc.c_comName}</td>
+	  					<td>${cc.c_sCost}</td>
+	  					<td>${cc.c_iTel}</td>
+	  					<td>${cc.c_iDate}</td>
+  					</tr>
   				</c:forEach>
 			</table>
 		 	</div>

@@ -2,11 +2,11 @@ public class ProductDTO {
 	private int pId;
 	private String pName;
 	private String pImg;
-	private String pPrice;
+	private int pPrice;
 	private int pAmount;
 	private int p_oId;
 
-	public ProductDTO(int pId, String pName, String pImg, String pPrice, int pAmount, int p_oId) {
+	public ProductDTO(int pId, String pName, String pImg, int pPrice, int pAmount, int p_oId) {
 		this.pId = pId;
 		this.pName = pName;
 		this.pImg = pImg;
@@ -42,11 +42,11 @@ public class ProductDTO {
 		this.pImg = pImg;
 	}
 
-	public String getpPrice() {
+	public int getpPrice() {
 		return pPrice;
 	}
 
-	public void setpPrice(String pPrice) {
+	public void setpPrice(int pPrice) {
 		this.pPrice = pPrice;
 	}
 

@@ -18,23 +18,23 @@
 		<jsp:include page="/admin/common/navigator.jsp"/>
 	
 		<div class="col-sm-9 col-md-10  main">
-		 	<h3>관리자 - 송장처리 출력하는 화면</h3>
+		 	<h3>송장 처리</h3>
 			<hr>
-		 	참고해야 하는 사이트<br>
-		 	http://bootstrapk.com/components/#navbar<br>
-		 	그외..<br>
-		 	https://fooplugins.github.io/FooTable/docs/examples/basic/row-toggle.html<br>
-		 	https://embed.plnkr.co/plunk/psPAl0
-		 	<br>
-		 	
-	 	
 		 	
 		 	<div class="col-xs-11" >
-		 		<button type="button" class="btn btn-default" style="float: right;">송장처리</button>
+		 		<form name="uploadForm" action="/FulfillmentService/FileProc?action=fileUpload" method="POST" enctype="multipart/form-data">
+				    <input type="file" name="file" value="" size="10" class="btn btn-info"/><br>
+				    <input type="submit" value="파일 업로드" name="submit" class="btn btn-info" />
+				</form>
+				<br><p style="color:red">업로드하는 파일은 D:\csv 경로 아래 위치해야 합니다.</p>
+				
+				<br>
+				<form name="from1" action="/FulfillmentService/CalculateCostProc?action=invoiceUpdate" method="POST">
+				    <input type="submit" value="송장 처리" name="submit" class="btn btn-info" style="float:right;" />
+				</form>
 		 		<br><br>
 		 		
-		 		
-		 		<table class="table table-striped">
+		 		<table class="table table-hover">
 	  				<tr>
 	  					<th>송장id</th>
 	  					<th>수신인 성함</th>

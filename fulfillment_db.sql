@@ -31,7 +31,7 @@ create table product (
 	p_id int(5) auto_increment,
 	p_name varchar(30),
 	p_img varchar(100),
-	p_price varchar(10),
+	p_price int(10),
 	p_amount int(5),
 	p_oId int(5),
 	primary key(p_id, p_name),
@@ -50,14 +50,14 @@ create table invoice(
 	i_sId int(5),
 	i_tId int(5),
 	i_check varchar(1) default 'N',
-	primary key(i_id, i_consigneeTel, i_orderDate),
+	primary key(i_id),
 	foreign key (i_pId, i_pName) references product(p_id, p_name),
 	foreign key (i_sId) references shopping_mall(s_id),
 	foreign key (i_tId) references trans_company(t_id)
 ) auto_increment=100001 default charset=utf8;
 
-select i_id, i_consigneeName, i_orderDate, i_sId, i_tId, i_check from invoice;
 
+/*
 create table calculate_cost (
 	c_iId int(6),
 	c_iTel varchar(13),
@@ -68,6 +68,18 @@ create table calculate_cost (
 	primary key (c_iTel, c_iDate),
 	foreign key (c_iId, c_iTel, c_iDate) references invoice(i_id, i_consigneeTel, i_orderDate) on update cascade
 ) default charset=utf8;
+*/
+
+create table calculate_cost(
+ /*tempUK int(10) unique key auto_increment,auto_increment=1,*/
+ c_iTel varchar(13),
+ c_iDate datetime,
+ c_sCost int(10),
+ c_oCost int(10),
+ c_tCost int(10) default 10000,
+ primary key(c_iTel, c_iDate)
+) default charset=utf8;
+
 
 /*
 http://database.sarang.net/?inc=read&aid=851&criteria=mssql&subcrit=&id=&limit=&keyword=&page=
@@ -94,12 +106,12 @@ insert into order_company(o_pwd, o_name) values('asdf', '스위트홈');
 /*update order_company set o_name='오렌지씨' where o_id=70004;*/
 
 
-insert into product(p_name, p_img, p_price, p_amount, p_oId) values('건축의 탄생', '../img/book/book1.jpg', 10000, 20, 70001);
-insert into product(p_name, p_img, p_price, p_amount, p_oId) values('고려열전', '../img/book/book2.jpg', 11000, 19, 70001);
-insert into product(p_name, p_img, p_price, p_amount, p_oId) values('대단한 스트레칭', '../img/book/book3.jpg', 9000, 17, 70001);
-insert into product(p_name, p_img, p_price, p_amount, p_oId) values('숨은 신발 찾기', '../img/book/book4.jpg', 14000, 31, 70001);
-insert into product(p_name, p_img, p_price, p_amount, p_oId) values('스페인 데이', '../img/book/book5.jpg', 13000, 25, 70001);
-insert into product(p_name, p_img, p_price, p_amount, p_oId) values('프리다 칼로', '../img/book/book6.jpg', 12000, 25, 70001);
+insert into product(p_name, p_img, p_price, p_amount, p_oId) values('건축의 탄생', 'WebContent/img/book/book1.jpg', 10000, 20, 70001);
+insert into product(p_name, p_img, p_price, p_amount, p_oId) values('고려열전', '/WebContent/img/book/book2.jpg', 11000, 19, 70001);
+insert into product(p_name, p_img, p_price, p_amount, p_oId) values('대단한 스트레칭', 'img/book/book3.jpg', 9000, 17, 70001);
+insert into product(p_name, p_img, p_price, p_amount, p_oId) values('숨은 신발 찾기', '/img/book/book4.jpg', 14000, 31, 70001);
+insert into product(p_name, p_img, p_price, p_amount, p_oId) values('스페인 데이', 'FulFillmentService/WebContent/img/book/book5.jpg', 13000, 25, 70001);
+insert into product(p_name, p_img, p_price, p_amount, p_oId) values('프리다 칼로', '/FulFillmentService/WebContent/img/book/book6.jpg', 12000, 25, 70001);
 insert into product(p_name, p_img, p_price, p_amount, p_oId) values('프리모 레비의 말', '../img/book/book7.jpg', 15000, 10, 70001);
 
 insert into product(p_name, p_img, p_price, p_amount, p_oId) values('가방', '../img/animalGoods/bag.jpg', 30000, 21, 70002);
@@ -134,87 +146,34 @@ insert into product(p_name, p_img, p_price, p_amount, p_oId) values('스팀다�
 insert into product(p_name, p_img, p_price, p_amount, p_oId) values('진공청소기', '../img/homeAppliances/vacuumcleaner.jpg', 22900, 30, 70005);
 insert into product(p_name, p_img, p_price, p_amount, p_oId) values('정수기', '../img/homeAppliances/waterpurifier.jpg', 32000, 30, 70005);
 
-
 select * from product;
-select * from trans_company;
-select * from shopping_mall;
-select * from invoice;
+select p_img, p_name, p_price from product where p_img like '%book%';
 
-insert into invoice(i_consigneeName, i_consigneeTel, i_consigneeAddr, i_pId, i_pName, i_amount, i_orderDate, i_sId, i_tId)
- values('홍길동', '010-1111-2222', '수원시 장안구 정자1동', 2, '고려열전', 1, date_format('2019-04-28 13:00','%y-%m-%d %H:%i'), 30001, 50001);
-insert into invoice(i_consigneeName, i_consigneeTel, i_consigneeAddr, i_pId, i_pName, i_amount, i_orderDate, i_sId, i_tId)
- values('홍길동', '010-1111-2222', '성남시 중원구 성남동', 3, '대단한 스트레칭', 2, date_format('2019-04-28 13:00','%y-%m-%d %H:%i'), 30001, 50001);
-insert into invoice(i_consigneeName, i_consigneeTel, i_consigneeAddr, i_pId, i_pName, i_amount, i_orderDate, i_sId, i_tId)
- values('전우치', '010-2222-3333', '평택시 신평동', 12, '애견 패드', 2, date_format('2019-04-29 14:25','%y-%m-%d %H:%i'), 30002, 50001);
-insert into invoice(i_consigneeName, i_consigneeTel, i_consigneeAddr, i_pId, i_pName, i_amount, i_orderDate, i_sId, i_tId)
- values('허균', '010-3333-4444', '천안시 중앙동', 15, '앰플', 4, date_format('2019-04-30 08:25','%y-%m-%d %H:%i'), 30003, 50002);
-insert into invoice(i_consigneeName, i_consigneeTel, i_consigneeAddr, i_pId, i_pName, i_amount, i_orderDate, i_sId, i_tId)
- values('김철수', '010-4444-5555', '논산시 부창동', 24, '용과', 4, date_format('2019-04-30 09:25','%y-%m-%d %H:%i'), 30003, 50002);
-insert into invoice(i_consigneeName, i_consigneeTel, i_consigneeAddr, i_pId, i_pName, i_amount, i_orderDate, i_sId, i_tId)
- values('김철수', '010-4444-5555', '대전시 서구 월평동', 26, '레몬', 5, date_format('2019-04-30 09:25','%y-%m-%d %H:%i'), 30003, 50002);
-insert into invoice(i_consigneeName, i_consigneeTel, i_consigneeAddr, i_pId, i_pName, i_amount, i_orderDate, i_sId, i_tId)
- values('박철수', '010-5555-6666', '부산시 중구 대청동', 21, '토너', 3, date_format('2019-04-30 09:25','%y-%m-%d %H:%i'), 30003, 50003);
-insert into invoice(i_consigneeName, i_consigneeTel, i_consigneeAddr, i_pId, i_pName, i_amount, i_orderDate, i_sId, i_tId)
- values('박철수', '010-5555-6666', '대구시 수성구 지산1동', 7, '프리모 레비의 말', 1, date_format('2019-04-30 16:25','%y-%m-%d %H:%i'), 30003, 50003);
-insert into invoice(i_consigneeName, i_consigneeTel, i_consigneeAddr, i_pId, i_pName, i_amount, i_orderDate, i_sId, i_tId)
- values('홍영희', '010-6666-7777', '울산시 울주군 삼남면', 32, '마사지기구', 2, date_format('2019-05-01 12:25','%y-%m-%d %H:%i'), 30003, 50003);
-insert into invoice(i_consigneeName, i_consigneeTel, i_consigneeAddr, i_pId, i_pName, i_amount, i_orderDate, i_sId, i_tId)
- values('홍지수', '010-7777-8888', '목포시 삼학동', 35, '정수기', 1, date_format('2019-05-02 08:25','%y-%m-%d %H:%i'), 30003, 50004);
-insert into invoice(i_consigneeName, i_consigneeTel, i_consigneeAddr, i_pId, i_pName, i_amount, i_orderDate, i_sId, i_tId)
- values('김지영', '010-8888-9999', '여수시 삼산면', 19, '마스크', 10, date_format('2019-05-02 08:25','%y-%m-%d %H:%i'), 30003, 50004);
-insert into invoice(i_consigneeName, i_consigneeTel, i_consigneeAddr, i_pId, i_pName, i_amount, i_orderDate, i_sId, i_tId)
- values('김수현', '010-9999-1111', '순천시 매곡동', 18, '로션', 2, date_format('2019-05-02 09:34','%y-%m-%d %H:%i'), 30003, 50004);
-insert into invoice(i_consigneeName, i_consigneeTel, i_consigneeAddr, i_pId, i_pName, i_amount, i_orderDate, i_sId, i_tId)
- values('김수현', '010-9999-1111', '순천시 황전면', 21, '토너', 2, date_format('2019-05-02 08:34','%y-%m-%d %H:%i'), 30003, 50004);
-insert into invoice(i_consigneeName, i_consigneeTel, i_consigneeAddr, i_pId, i_pName, i_amount, i_orderDate, i_sId, i_tId)
- values('김수현', '010-9999-1111', '대전시 동구', 21, '토너', 1, date_format('2019-05-02 09:39','%y-%m-%d %H:%i'), 30003, 50002);
-insert into invoice(i_consigneeName, i_consigneeTel, i_consigneeAddr, i_pId, i_pName, i_amount, i_orderDate, i_sId, i_tId)
- values('박수현', '010-1212-1212', '대전시 유성구 궁동', 19, '마스크', 3, date_format('2019-05-02 11:39','%y-%m-%d %H:%i'), 30003, 50002);
-insert into invoice(i_consigneeName, i_consigneeTel, i_consigneeAddr, i_pId, i_pName, i_amount, i_orderDate, i_sId, i_tId)
- values('이수현', '010-1313-1313', '대전시 유성구 어은동', 19, '마스크', 5, date_format('2019-05-03 09:12','%y-%m-%d %H:%i'), 30003, 50002);
- 
-
- 
-desc invoice;
-
-select * from invoice;
-select * from trans_company;
-select * from calculate_cost;
-desc calculate_cost;
-select * from trans_company;
-
-/*
-insert into calculate_cost values(100001, '010-1111-2222', date_format('2019-04-28 13:00','%y-%m-%d %H:%i'), 30001, 50001);
-insert into calculate_cost values(100002, '010-1111-2222', date_format('2019-04-28 13:00','%y-%m-%d %H:%i'), 30001, 50001);
-*/
-/*
-SELECT SUBSTR(i_consigneeAddr, 1, 3) from invoice where i_id=100001;
-
-select (
-	case
-		when substr(i_consigneeAddr, 1, 3)
-		
-) as 
-*/
-select * from product;
-select * from invoice;
-select * from calculate_cost;
+/* csv 파일 읽어오기 - invoice 테이블에 값을 insert 하는 부분 */
+load data local infile 'D:/csv/temp3.csv'
+ignore into table invoice
+character set utf8
+fields terminated by ','
+lines terminated by '\r\n'
+ignore 1 rows
+(i_consigneeName, i_consigneeTel, i_consigneeAddr, i_pId, i_pName, i_amount, @var1, i_sId, i_tId)
+ set i_orderDate = timestamp(str_to_date(@var1, '%Y-%m-%d %H:%i'));
 
 
-/* 월단위 판매내역(쇼핑몰) 출력 시 사용하는 쿼리문 */
-select C.c_iId, I.i_consigneeName, C.c_iTel, C.c_iDate, I.i_sId, C.c_sCost from calculate_cost as C
- inner join invoice as I
- on I.i_id=C.c_iId;
+/* cost 테이블에 값들 insert 하는 부분 */
+delete from calculate_cost;
+insert into calculate_cost(c_iTel, c_iDate, c_sCost, c_oCost)
+ select I.i_consigneeTel, I.i_orderDate, sum(P.p_price*I.i_amount), (sum(P.p_price*I.i_amount)*1.1 + 10000) from invoice as I
+ inner join product as P on I.i_pId=P.p_id and I.i_check='Y'
+ group by I.i_consigneeTel, I.i_orderDate order by I.i_id;
 
 
-
-/* invoice */
+/* invoice  and I.i_id = 100005*/
 /* 날짜 확인해서 만족하면 && 재고 물량이 10개 이상이라면 ->
   invoice check 를 Y로 상태 바꾸기 &  product의 amount를 갱신하기 */
 update invoice as I inner join product as P on P.p_id=I.i_pId
  set I.i_check='Y', P.p_amount=P.p_amount-I.i_amount
  where P.p_amount - I.i_amount > 9
- and I.i_id = 100004
  and (
  	(I.i_orderDate <= date_sub(now(), interval 1 day) and hour(I.i_orderDate) < 18 )
  	or (
@@ -235,35 +194,27 @@ update invoice as I inner join product as P on P.p_id=I.i_pId
 	)
 );
 
-desc calculate_cost;
-select * from calculate_cost;
-select * from invoice;
-select * from shopping_mall;
+select * from product;
 
 
 /* 단순히 물품 가격만을 출력 */
 select I.i_id, P.p_name, I.i_consigneeTel, I.i_orderDate, P.p_price*I.i_amount from product as P
  inner join invoice as I on I.i_pId=P.p_id
  order by I.i_id;
- 
-create table test(
- tempUK int(10) unique key auto_increment,
- tel varchar(13),
- ordertime datetime,
- shoppingcost int(10),
- ordercost int(10),
- transcost int(10) default 10000,
- primary key(tel, ordertime)
-) auto_increment=1, default charset=utf8;
 
-drop table test;
-
-/* update 한 이후에 Y인 부분을 cost 테이블에 추가하도록 하기 */
-/*
+/* update 한 이후에 Y인 부분을 cost 테이블에 추가하도록 하기 
+  ================================================
 쇼핑몰 : 대금 청구액은 (물품 가격*1.1 + 송장 1건당 10000원)
 구매처 : 지급해야 할 금액은 (물품 가격)
 운송사 : 지급해야 할 금액은 송장 1건당 (10000원) - default값이 10000원
 */
+delete from calculate_cost;
+insert into calculate_cost(c_iTel, c_iDate, c_sCost, c_oCost)
+ select I.i_consigneeTel, I.i_orderDate, sum(P.p_price*I.i_amount), (sum(P.p_price*I.i_amount)*1.1 + 10000) from invoice as I
+ inner join product as P on I.i_pId=P.p_id and I.i_check='Y'
+ group by I.i_consigneeTel, I.i_orderDate order by I.i_id;
+
+/* 위에꺼 쿼리문 하다가 실패한 버전
 insert into test(tel, ordertime, shoppingcost, ordercost)
  select I.i_consigneeTel, I.i_orderDate, sum(P.p_price*I.i_amount), (sum(P.p_price*I.i_amount)*1.1 + 10000) from invoice as I
  inner join product as P on I.i_pId=P.p_id and I.i_check='Y'
@@ -274,21 +225,35 @@ insert into test(tel, ordertime, shoppingcost, ordercost)
    group by invoice.i_consigneeTel, invoice.i_orderDate
  );
 
-
-select * from test order by tempUK;
- 
-insert into calculate_cost() values 
-select I.i_consigneeTel, I.i_orderDate, sum(P.p_price*I.i_amount) as shoppCost from invoice as I
- inner join product as P on I.i_pId=P.p_id and I.i_check='Y'
- group by I.i_consigneeTel, I.i_orderDate order by I.i_id;
-
-
-select I.i_consigneeTel, I.i_orderDate, sum(P.p_price*I.i_amount) as shoppCost from invoice as I
- inner join product as P on I.i_pId=P.p_id
- group by I.i_consigneeTel, I.i_orderDate order by I.i_id;
- 
-
 select count(*) from invoice group by i_consigneeTel, i_orderDate order by i_id;
+ 
+*/
+select * from calculate_cost;
+
+/* 쇼핑몰 전체 판매 내역 확인 (월단위x)*/
+select distinct C.c_iTel, C.c_iDate, C.c_sCost, I.i_sId, S.s_name from calculate_cost as C
+ inner join invoice as I on I.i_consigneeTel=C.c_iTel and I.i_orderDate=C.c_iDate
+ inner join shopping_mall as S on S.s_id=I.i_sId
+ order by C.c_iDate desc;
+
+/* 구매처 전체 판매 내역 확인 (월단위x)*/
+select distinct C.c_iTel, C.c_iDate, C.c_oCost, O.o_id, O.o_name from calculate_cost as C
+ inner join invoice as I on I.i_consigneeTel=C.c_iTel and I.i_orderDate=C.c_iDate
+ inner join product as P on P.p_id=I.i_pId
+ inner join order_company as O on O.o_id=P.p_oId
+ order by C.c_iDate desc;
+ 
+/* 운송 회사 전체 판매 내역 확인 (월단위x)*/
+select distinct C.c_iTel, C.c_iDate, C.c_tCost, T.t_id, T.t_name from calculate_cost as C
+ inner join invoice as I on I.i_consigneeTel=C.c_iTel and I.i_orderDate=C.c_iDate
+ inner join trans_company as T on T.t_id=I.i_tId
+ order by C.c_iDate desc;
+
+
+
+
+
+ /* 연습하던 부분
 
 select group_concat(i_pId separator ','), group_concat(i_amount separator ',') from invoice
  group by i_consigneeTel, i_orderDate;
@@ -353,8 +318,8 @@ select * from invoice where concat(i_consigneeTel, ',', i_orderDate)='010-1111-2
 select * from invoice where i_id=100001;
 select * from test;
 
-select substr(t_str from 1 for 13) from test; /* 전화번호 */
-select substr(t_str from 15) from test; /* 날짜 */
+select substr(t_str from 1 for 13) from test;  전화번호 
+select substr(t_str from 15) from test;  날짜 
 
 select * from test where substr(t_str from 1 for 13)='010-1111-2222';
 
@@ -375,52 +340,20 @@ select sum(I.i_amount*P.p_price), P.p_oId from invoice as I
  inner join test as T
   on concat(I.i_consigneeTel, ',', I.i_orderDate)=T.t_str;
  
- 
-
 
 select count(distinct concat(i_consigneeTel, ',', i_orderDate)) from invoice;
 
 select i_pId, i_amount from invoice where distinct concat(i_consigneeTel, ',', i_orderDate);
 
-
-
 where distinct concat(i_consigneeTel, ',', i_orderDate)
-
-
-
 
 select invoice as I inner join test as T
 
-
-
-
-
 select concat('하이', ',', now());
 
-
-
-select c_iId, c_iTel, c_iDate, c_sId from calculate_cost;
-
-
-
-
-select * from invoice;
-select * from product;
-select * from calculate_cost;
 select hour(now());
-
-select (c_iId, c_iTel, c_iDate, c_sId) from calculate_cost where c_iId=100001;
  
-/*
-쇼핑몰 : 대금 청구액은 (물품 가격*1.1 + 송장 1건당 10000원)
-구매처 : 지급해야 할 금액은 (물품 가격)
-운송사 : 지급해야 할 금액은 송장 1건당 (10000원)
 */
-select ssss from calculate_cost as C
- inner join invoice as I
- inner join product as P
-
-
 
 /* calculate_cost */
 /* 비용 계산 테이블 값 추가하는 쿼리문 */
@@ -431,3 +364,8 @@ insert into calculate_cost(c_iId, c_iTel, c_iDate, c_sId, c_tId)
  and (substr(i_consigneeAddr, 1, 3)='수원시' or substr(i_consigneeAddr, 1, 3)='성남시' or substr(i_consigneeAddr, 1, 3)='평택시');
 */
 
+
+/* 월단위 판매내역(쇼핑몰) 출력 시 사용하는 쿼리문 - calculate_cost table 수정 이전 버전임. 사용 x  */
+/*select C.c_iId, I.i_consigneeName, C.c_iTel, C.c_iDate, I.i_sId, C.c_sCost from calculate_cost as C
+ inner join invoice as I
+ on I.i_id=C.c_iId;*/

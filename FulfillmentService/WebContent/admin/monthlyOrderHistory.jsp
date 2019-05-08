@@ -1,5 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
@@ -19,7 +20,7 @@
 	
 		<div class="col-sm-9 col-md-10  main">
 		 	<div class="col-md-7">
-		 		<h3>관리자 - 월단위 주문내역 출력하는 화면</h3>
+		 		<h3>월단위 발주내역(구매처)</h3>
 			</div>
 		 	<div class="col-md-5">
 				<form action="../control/adminControl.jsp?action=dailySales" class="form-horizontal" method="post">
@@ -30,17 +31,26 @@
 				</form>
 			</div>
 		
-			<br><hr><br>
-		 	참고해야 하는 사이트<br>
-		 	http://bootstrapk.com/components/#navbar
-		 	<br><br>
+			<br><br>
+			<hr>
+			<p>구매처 대금 지불 금액을 확인하는 화면입니다.</p>
+			<br>
 		 	<div class="col-xs-11" >
-		 	<table class="table table-bordered">
-  				<tr><th>물품ID</th><th>물품명</th><th>구매처ID</th><th>금액</th></tr>
-  				<tr><td>0000</td><td>토너</td><td>50001</td><td>10000</td></tr>
-  				<tr><td>gg</td><td>gg</td><td>gg</td><td>gg</td></tr>
+		 	<table class="table table-hover">
+  				<tr><th>구매처 id</th><th>구매처 이름</th><th>구매처 대금 지불 금액(원)</th><th>주문자 전화번호</th><th>주문날짜</th></tr>
+  				<c:set var="ccList" value="${requestScope.calList}"/>
+				<c:forEach var="cc" items="${ccList}">
+  					<tr>
+  						<td>${cc.c_comId}</td>
+	  					<td>${cc.c_comName}</td>
+	  					<td>${cc.c_oCost}</td>
+	  					<td>${cc.c_iTel}</td>
+	  					<td>${cc.c_iDate}</td>
+  					</tr>
+  				</c:forEach>
 			</table>
 		 	</div>
+			
 		 </div>
  	</div>
  </div>
