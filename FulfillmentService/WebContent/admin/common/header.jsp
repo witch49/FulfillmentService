@@ -19,7 +19,7 @@
       <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
         <ul class="nav navbar-nav navbar-right">
           <c:if test="${id == null }">
-          <li><a style="background: #FFF; border-radius: 5px; padding: 5px;" href="login.jsp">로그인</a></li>
+          <li><a style="background: #FFF; border-radius: 5px; right-padding: 5px; text-align:center;" href="login.jsp">로그인</a></li>
           </c:if>
           <c:if test="${id.equals('admin') }">
          	 <p class="navbar-text">관리자님 환영합니다</p>

@@ -5,14 +5,16 @@ public class ProductDTO {
 	private int pPrice;
 	private int pAmount;
 	private int p_oId;
+	private String p_oName;
 
-	public ProductDTO(int pId, String pName, String pImg, int pPrice, int pAmount, int p_oId) {
+	public ProductDTO(int pId, String pName, String pImg, int pPrice, int pAmount, int p_oId, String p_oName) {
 		this.pId = pId;
 		this.pName = pName;
 		this.pImg = pImg;
 		this.pPrice = pPrice;
 		this.pAmount = pAmount;
 		this.p_oId = p_oId;
+		this.p_oName = p_oName;
 	}
 
 	public ProductDTO() {
@@ -66,10 +68,18 @@ public class ProductDTO {
 		this.p_oId = p_oId;
 	}
 
+	public String getP_oName() {
+		return p_oName;
+	}
+
+	public void setP_oName(String p_oName) {
+		this.p_oName = p_oName;
+	}
+
 	@Override
 	public String toString() {
 		return "ProductDTO [pId=" + pId + ", pName=" + pName + ", pImg=" + pImg + ", pPrice=" + pPrice + ", pAmount="
-				+ pAmount + ", p_oId=" + p_oId + "]";
+				+ pAmount + ", p_oId=" + p_oId + ", p_oName=" + p_oName + "]";
 	}
 
 }

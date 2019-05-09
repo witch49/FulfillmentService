@@ -1,6 +1,7 @@
 
 
 import java.io.IOException;
+import java.util.regex.Pattern;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -12,6 +13,7 @@ import javax.servlet.http.HttpSession;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 
 /**
  * Servlet implementation class LoginProc
@@ -35,7 +37,7 @@ public class LoginProc extends HttpServlet {
 
 	protected void doAction(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		String id = "", password = "";
-		String errorMessage;
+		String errorMessage = "";
 		String action = request.getParameter("action");
 		HttpSession session = request.getSession();
 		RequestDispatcher rd = null;
@@ -52,16 +54,21 @@ public class LoginProc extends HttpServlet {
 			LOG.trace("Login start");
 			if (!request.getParameter("id").equals(""))
 				id = request.getParameter("id");
-			if (!request.getParameter("password").equals(""))
-				password = request.getParameter("password");
+			password = request.getParameter("password");		
 
 			if (id.equals("admin") && password.equals("admin")) {
-				// rd = request.getRequestDispatcher("/admin/monthlySalesHistory.jsp");
-				// rd.forward(request, response);
 				session.setAttribute("id", id);
 				response.sendRedirect("loginMain.jsp");
 				LOG.trace("관리자 로그인 성공");
 				break;
+			}
+			
+			if(!Pattern.matches("[0-9]*", id)) {
+				request.setAttribute("message", "아이디 오류입니다. 고객이라면 숫자만 입력해 주세요.");
+				request.setAttribute("url", "login.jsp");
+				rd = request.getRequestDispatcher("alertMsg.jsp");
+				rd.forward(request, response);
+				LOG.trace("구매 회사 로그인 성공 - 아이디 오류");	
 			}
 			
 			// id 범위가 50000에서 70000 사이인 경우 운송회사 아이디
@@ -85,6 +92,7 @@ public class LoginProc extends HttpServlet {
 				default:
 					errorMessage = "";
 				}
+				
 				if (result == TransCompanyDAO.ID_PASSWORD_MATCH) {
 					tDto = tDao.searchById(Integer.parseInt(id));
 					session.setAttribute("id", id);
@@ -102,7 +110,7 @@ public class LoginProc extends HttpServlet {
 			}
 			
 			// id 범위가 70001에서 90000 사이인 경우 구매 회사 아이디
-			if (Integer.parseInt(id) > 70000 && Integer.parseInt(id) < 90001) {
+			else if (Integer.parseInt(id) > 70000 && Integer.parseInt(id) < 90001) {
 				oDao = new OrderCompanyDAO();
 				int result = oDao.verifyLogin(Integer.parseInt(id), password);
 				
@@ -137,12 +145,20 @@ public class LoginProc extends HttpServlet {
 					LOG.trace("구매 회사 로그인 성공 - 패스워드 틀림");
 				}
 			}
+			else {
+				request.setAttribute("message", "없는 아이디입니다.");
+				request.setAttribute("url", "login.jsp");
+				rd = request.getRequestDispatcher("alertMsg.jsp");
+				rd.forward(request, response);
+				LOG.trace("구매 회사 로그인 성공 - 아이디 없음");
+			}
 			break;
 		
 		////////////////////////////////////////////////////////////////////////////////////
 		case "logout":			//로그아웃
 			LOG.trace("Logout start");
 			session.removeAttribute("id");
+			//session.removeAttribute("name");
 			response.sendRedirect("index.jsp");
 			LOG.trace("로그아웃 성공");
 			break;

@@ -1,15 +1,24 @@
 create database fulfillment default character set utf8;
 use fulfillment;
-/*
---- drop 지우는 순서 ---
+
+/* ***********************
+=== drop 지우는 순서 ===
 drop table calculate_cost;
 drop table invoice;
 drop table shopping_mall;
 drop table trans_company;
 drop table product;
 drop table order_company;
-*/
+************************* */
 
+/* EVENT SCHEDULER 쓰기 위해서 반드시 설정해야 하는 부분. 꼭 실행하기. 여러 번 실행해도 에러 x */
+SET GLOBAL event_scheduler = ON;
+SET @@global.event_scheduler = ON;
+SET GLOBAL event_scheduler = 1;
+SET @@global.event_scheduler = 1;
+
+
+/* table 생성 */
 create table shopping_mall (
 	s_id int(5) auto_increment primary key,
 	s_name varchar(40)
@@ -56,28 +65,13 @@ create table invoice(
 	foreign key (i_tId) references trans_company(t_id)
 ) auto_increment=100001 default charset=utf8;
 
-
-/*
-create table calculate_cost (
-	c_iId int(6),
+create table calculate_cost(
 	c_iTel varchar(13),
 	c_iDate datetime,
 	c_sCost int(10),
 	c_oCost int(10),
 	c_tCost int(10) default 10000,
-	primary key (c_iTel, c_iDate),
-	foreign key (c_iId, c_iTel, c_iDate) references invoice(i_id, i_consigneeTel, i_orderDate) on update cascade
-) default charset=utf8;
-*/
-
-create table calculate_cost(
- /*tempUK int(10) unique key auto_increment,auto_increment=1,*/
- c_iTel varchar(13),
- c_iDate datetime,
- c_sCost int(10),
- c_oCost int(10),
- c_tCost int(10) default 10000,
- primary key(c_iTel, c_iDate)
+	primary key(c_iTel, c_iDate)
 ) default charset=utf8;
 
 
@@ -89,12 +83,10 @@ insert into shopping_mall(s_name) values('CI몰');
 insert into shopping_mall(s_name) values('G-마트');
 insert into shopping_mall(s_name) values('쿠팽');
 
-
 insert into trans_company(t_pwd, t_name) values('asdf', '경기물류');
 insert into trans_company(t_pwd, t_name) values('asdf', '중부물류');
 insert into trans_company(t_pwd, t_name) values('asdf', '영남물류');
 insert into trans_company(t_pwd, t_name) values('asdf', '서부물류');
-
 
 insert into order_company(o_pwd, o_name) values('asdf', '책책책');
 insert into order_company(o_pwd, o_name) values('asdf', '동물사랑');
@@ -102,52 +94,50 @@ insert into order_company(o_pwd, o_name) values('asdf', '올리브올드');
 insert into order_company(o_pwd, o_name) values('asdf', '오렌지씨');
 insert into order_company(o_pwd, o_name) values('asdf', '스위트홈');
 
+insert into product(p_name, p_img, p_price, p_amount, p_oId) values('건축의 탄생', 'book1.jpg', 10000, 20, 70001);
+insert into product(p_name, p_img, p_price, p_amount, p_oId) values('고려열전', 'book2.jpg', 11000, 19, 70001);
+insert into product(p_name, p_img, p_price, p_amount, p_oId) values('대단한 스트레칭', 'book3.jpg', 9000, 17, 70001);
+insert into product(p_name, p_img, p_price, p_amount, p_oId) values('숨은 신발 찾기', 'book4.jpg', 14000, 31, 70001);
+insert into product(p_name, p_img, p_price, p_amount, p_oId) values('스페인 데이', 'book5.jpg', 13000, 25, 70001);
+insert into product(p_name, p_img, p_price, p_amount, p_oId) values('프리다 칼로', 'book6.jpg', 12000, 25, 70001);
+insert into product(p_name, p_img, p_price, p_amount, p_oId) values('프리모 레비의 말', 'book7.jpg', 15000, 10, 70001);
+insert into product(p_name, p_img, p_price, p_amount, p_oId) values('가방', 'animal_bag.jpg', 30000, 21, 70002);
+insert into product(p_name, p_img, p_price, p_amount, p_oId) values('캔', 'animal_can.jpg', 5000, 40, 70002);
+insert into product(p_name, p_img, p_price, p_amount, p_oId) values('쿠션', 'animal_cushion.jpg', 11000, 28, 70002);
+insert into product(p_name, p_img, p_price, p_amount, p_oId) values('사료', 'animal_feed.jpg', 12100, 40, 70002);
+insert into product(p_name, p_img, p_price, p_amount, p_oId) values('애견 패드', 'animal_pad.jpg', 19900, 30, 70002);
+insert into product(p_name, p_img, p_price, p_amount, p_oId) values('간식', 'animal_snack.jpg', 9900, 40, 70002);
+insert into product(p_name, p_img, p_price, p_amount, p_oId) values('장난감', 'animal_toy.jpg', 3700, 40, 70002);
+insert into product(p_name, p_img, p_price, p_amount, p_oId) values('앰플', 'cosmetic_ample.jpg', 9900, 40, 70003);
+insert into product(p_name, p_img, p_price, p_amount, p_oId) values('크림', 'cosmetic_cream.jpg', 8900, 40, 70003);
+insert into product(p_name, p_img, p_price, p_amount, p_oId) values('립밤', 'cosmetic_lipbalm.jpg', 3200, 70, 70003);
+insert into product(p_name, p_img, p_price, p_amount, p_oId) values('로션', 'cosmetic_lotion.jpg', 10900, 70, 70003);
+insert into product(p_name, p_img, p_price, p_amount, p_oId) values('마스크', 'cosmetic_mask.jpg', 2300, 70, 70003);
+insert into product(p_name, p_img, p_price, p_amount, p_oId) values('선크림', 'cosmetic_suncream.jpg', 5600, 70, 70003);
+insert into product(p_name, p_img, p_price, p_amount, p_oId) values('토너', 'cosmetic_toner.jpg', 8800, 40, 70003);
+insert into product(p_name, p_img, p_price, p_amount, p_oId) values('아보카도', 'fruit_avocado.jpg', 19800, 50, 70004);
+insert into product(p_name, p_img, p_price, p_amount, p_oId) values('코코넛', 'fruit_coconut.jpg', 22000, 50, 70004);
+insert into product(p_name, p_img, p_price, p_amount, p_oId) values('용과', 'fruit_dragon.jpg', 21000, 50, 70004);
+insert into product(p_name, p_img, p_price, p_amount, p_oId) values('키위', 'fruit_kiwi.jpg', 19000, 50, 70004);
+insert into product(p_name, p_img, p_price, p_amount, p_oId) values('레몬', 'fruit_lemon.jpg', 11000, 50, 70004);
+insert into product(p_name, p_img, p_price, p_amount, p_oId) values('라임', 'fruit_lime.jpg', 12000, 50, 70004);
+insert into product(p_name, p_img, p_price, p_amount, p_oId) values('오렌지', 'fruit_orange.jpg', 9900, 50, 70004);
+insert into product(p_name, p_img, p_price, p_amount, p_oId) values('전기밥솥', 'homeappliances_airfryer.jpg', 34000, 40, 70005);
+insert into product(p_name, p_img, p_price, p_amount, p_oId) values('고데기', 'homeappliances_curlingiron.jpg', 9900, 50, 70005);
+insert into product(p_name, p_img, p_price, p_amount, p_oId) values('헤어드라이기', 'homeappliances_hairdryer.jpg', 9900, 50, 70005);
+insert into product(p_name, p_img, p_price, p_amount, p_oId) values('마사지기구', 'homeappliances_massage.jpg', 23000, 50, 70005);
+insert into product(p_name, p_img, p_price, p_amount, p_oId) values('스팀다리미', 'homeappliances_steamiron.jpg', 19800, 50, 70005);
+insert into product(p_name, p_img, p_price, p_amount, p_oId) values('진공청소기', 'homeappliances_vacuumcleaner.jpg', 22900, 30, 70005);
+insert into product(p_name, p_img, p_price, p_amount, p_oId) values('정수기', 'homeappliances_waterpurifier.jpg', 32000, 30, 70005);
 
-/*update order_company set o_name='오렌지씨' where o_id=70004;*/
 
 
-insert into product(p_name, p_img, p_price, p_amount, p_oId) values('건축의 탄생', 'WebContent/img/book/book1.jpg', 10000, 20, 70001);
-insert into product(p_name, p_img, p_price, p_amount, p_oId) values('고려열전', '/WebContent/img/book/book2.jpg', 11000, 19, 70001);
-insert into product(p_name, p_img, p_price, p_amount, p_oId) values('대단한 스트레칭', 'img/book/book3.jpg', 9000, 17, 70001);
-insert into product(p_name, p_img, p_price, p_amount, p_oId) values('숨은 신발 찾기', '/img/book/book4.jpg', 14000, 31, 70001);
-insert into product(p_name, p_img, p_price, p_amount, p_oId) values('스페인 데이', 'FulFillmentService/WebContent/img/book/book5.jpg', 13000, 25, 70001);
-insert into product(p_name, p_img, p_price, p_amount, p_oId) values('프리다 칼로', '/FulFillmentService/WebContent/img/book/book6.jpg', 12000, 25, 70001);
-insert into product(p_name, p_img, p_price, p_amount, p_oId) values('프리모 레비의 말', '../img/book/book7.jpg', 15000, 10, 70001);
 
-insert into product(p_name, p_img, p_price, p_amount, p_oId) values('가방', '../img/animalGoods/bag.jpg', 30000, 21, 70002);
-insert into product(p_name, p_img, p_price, p_amount, p_oId) values('캔', '../img/animalGoods/can.jpg', 5000, 40, 70002);
-insert into product(p_name, p_img, p_price, p_amount, p_oId) values('쿠션', '../img/animalGoods/cushion.jpg', 11000, 28, 70002);
-insert into product(p_name, p_img, p_price, p_amount, p_oId) values('사료', '../img/animalGoods/feed.jpg', 12100, 40, 70002);
-insert into product(p_name, p_img, p_price, p_amount, p_oId) values('애견 패드', '../img/animalGoods/pad.jpg', 19900, 30, 70002);
-insert into product(p_name, p_img, p_price, p_amount, p_oId) values('간식', '../img/animalGoods/snack.jpg', 9900, 40, 70002);
-insert into product(p_name, p_img, p_price, p_amount, p_oId) values('장난감', '../img/animalGoods/toy.jpg', 3700, 40, 70002);
 
-insert into product(p_name, p_img, p_price, p_amount, p_oId) values('앰플', '../img/cosmetic/ample.jpg', 9900, 40, 70003);
-insert into product(p_name, p_img, p_price, p_amount, p_oId) values('크림', '../img/cosmetic/cream.jpg', 8900, 40, 70003);
-insert into product(p_name, p_img, p_price, p_amount, p_oId) values('립밤', '../img/cosmetic/lipbalm.jpg', 3200, 70, 70003);
-insert into product(p_name, p_img, p_price, p_amount, p_oId) values('로션', '../img/cosmetic/lotion.jpg', 10900, 70, 70003);
-insert into product(p_name, p_img, p_price, p_amount, p_oId) values('마스크', '../img/cosmetic/mask.jpg', 2300, 70, 70003);
-insert into product(p_name, p_img, p_price, p_amount, p_oId) values('선크림', '../img/cosmetic/suncream.jpg', 5600, 70, 70003);
-insert into product(p_name, p_img, p_price, p_amount, p_oId) values('토너', '../img/cosmetic/toner.jpg', 8800, 40, 70003);
+/* *********************************************************** */
+/* 아래서부터는 eclipse에서 사용하는 쿼리문들. 실행하지 말 것  */
+/* *********************************************************** */
 
-insert into product(p_name, p_img, p_price, p_amount, p_oId) values('아보카도', '../img/fruit/avocado.jpg', 19800, 50, 70004);
-insert into product(p_name, p_img, p_price, p_amount, p_oId) values('코코넛', '../img/fruit/coconut.jpg', 22000, 50, 70004);
-insert into product(p_name, p_img, p_price, p_amount, p_oId) values('용과', '../img/fruit/drogon.jpg', 21000, 50, 70004);
-insert into product(p_name, p_img, p_price, p_amount, p_oId) values('키위', '../img/fruit/kiwi.jpg', 19000, 50, 70004);
-insert into product(p_name, p_img, p_price, p_amount, p_oId) values('레몬', '../img/fruit/lemon.jpg', 11000, 50, 70004);
-insert into product(p_name, p_img, p_price, p_amount, p_oId) values('라임', '../img/fruit/lime.jpg', 12000, 50, 70004);
-insert into product(p_name, p_img, p_price, p_amount, p_oId) values('오렌지', '../img/fruit/orange.jpg', 9900, 50, 70004);
-
-insert into product(p_name, p_img, p_price, p_amount, p_oId) values('전기밥솥', '../img/homeAppliances/Airfryer.jpg', 34000, 40, 70005);
-insert into product(p_name, p_img, p_price, p_amount, p_oId) values('고데기', '../img/homeAppliances/curlingiron.jpg', 9900, 50, 70005);
-insert into product(p_name, p_img, p_price, p_amount, p_oId) values('헤어드라이기', '../img/homeAppliances/Hairdryer.jpg', 9900, 50, 70005);
-insert into product(p_name, p_img, p_price, p_amount, p_oId) values('마사지기구', '../img/homeAppliances/Massage.jpg', 23000, 50, 70005);
-insert into product(p_name, p_img, p_price, p_amount, p_oId) values('스팀다리미', '../img/homeAppliances/Steamiron.jpg', 19800, 50, 70005);
-insert into product(p_name, p_img, p_price, p_amount, p_oId) values('진공청소기', '../img/homeAppliances/vacuumcleaner.jpg', 22900, 30, 70005);
-insert into product(p_name, p_img, p_price, p_amount, p_oId) values('정수기', '../img/homeAppliances/waterpurifier.jpg', 32000, 30, 70005);
-
-select * from product;
-select p_img, p_name, p_price from product where p_img like '%book%';
 
 /* csv 파일 읽어오기 - invoice 테이블에 값을 insert 하는 부분 */
 load data local infile 'D:/csv/temp3.csv'
@@ -168,7 +158,6 @@ insert into calculate_cost(c_iTel, c_iDate, c_sCost, c_oCost)
  group by I.i_consigneeTel, I.i_orderDate order by I.i_id;
 
 
-/* invoice  and I.i_id = 100005*/
 /* 날짜 확인해서 만족하면 && 재고 물량이 10개 이상이라면 ->
   invoice check 를 Y로 상태 바꾸기 &  product의 amount를 갱신하기 */
 update invoice as I inner join product as P on P.p_id=I.i_pId
@@ -193,14 +182,6 @@ update invoice as I inner join product as P on P.p_id=I.i_pId
 	 and (hour(now()) >= 18)
 	)
 );
-
-select * from product;
-
-
-/* 단순히 물품 가격만을 출력 */
-select I.i_id, P.p_name, I.i_consigneeTel, I.i_orderDate, P.p_price*I.i_amount from product as P
- inner join invoice as I on I.i_pId=P.p_id
- order by I.i_id;
 
 /* update 한 이후에 Y인 부분을 cost 테이블에 추가하도록 하기 
   ================================================
@@ -228,13 +209,42 @@ insert into test(tel, ordertime, shoppingcost, ordercost)
 select count(*) from invoice group by i_consigneeTel, i_orderDate order by i_id;
  
 */
+
+
+/* 단순히 물품 가격만을 출력 */
+select I.i_id, P.p_name, I.i_consigneeTel, I.i_orderDate, P.p_price*I.i_amount from product as P
+ inner join invoice as I on I.i_pId=P.p_id
+ order by I.i_id;
 select * from calculate_cost;
+
+
+/* 발주 화면 시 사용하는 쿼리문 */
+select P.p_id, P.p_name, P.p_price, P.p_amount, P.p_oId, O.o_name from product as P
+ inner join order_company as O on P.p_oId=O.o_id;
+ 
+ 
+/* 발주 요청 시 내일 10시가 지나면 재고 추가되도록 하기 */
+/* 내일 오전 10시 select */
+select CURDATE() + INTERVAL 0 SECOND + INTERVAL 1 DAY + INTERVAL 10 HOUR;
+
+CREATE EVENT AV120oPOJSm40xN50wYV
+ ON SCHEDULE
+ at (CURDATE() + INTERVAL 0 SECOND + INTERVAL 1 DAY + INTERVAL 10 HOUR)
+ DO update product set p_amount = p_amount + 1 where p_id=1;
+
+select * from product;
+drop event orderRequest_event_01;
+
+show events from fulfillment;
+/* 1번은 11개였고 4번은 31개였음 */
+
 
 /* 쇼핑몰 전체 판매 내역 확인 (월단위x)*/
 select distinct C.c_iTel, C.c_iDate, C.c_sCost, I.i_sId, S.s_name from calculate_cost as C
  inner join invoice as I on I.i_consigneeTel=C.c_iTel and I.i_orderDate=C.c_iDate
  inner join shopping_mall as S on S.s_id=I.i_sId
  order by C.c_iDate desc;
+
 
 /* 구매처 전체 판매 내역 확인 (월단위x)*/
 select distinct C.c_iTel, C.c_iDate, C.c_oCost, O.o_id, O.o_name from calculate_cost as C
@@ -243,117 +253,13 @@ select distinct C.c_iTel, C.c_iDate, C.c_oCost, O.o_id, O.o_name from calculate_
  inner join order_company as O on O.o_id=P.p_oId
  order by C.c_iDate desc;
  
+ 
 /* 운송 회사 전체 판매 내역 확인 (월단위x)*/
 select distinct C.c_iTel, C.c_iDate, C.c_tCost, T.t_id, T.t_name from calculate_cost as C
  inner join invoice as I on I.i_consigneeTel=C.c_iTel and I.i_orderDate=C.c_iDate
  inner join trans_company as T on T.t_id=I.i_tId
  order by C.c_iDate desc;
 
-
-
-
-
- /* 연습하던 부분
-
-select group_concat(i_pId separator ','), group_concat(i_amount separator ',') from invoice
- group by i_consigneeTel, i_orderDate;
-
-
-insert into calculate_cost(c_iId, c_iTel, c_iDate, c_sCost, c_oCost)
- select C.c_iId, C.c_iTel, C.c_iDate from invoice as I inner join calculate_cost as C on I.i_check='Y' and 
- 
- select i_id, i_consigneeTel, i_orderDate from invoice where i_check='Y' and i_id=100001
- select s cost
- select o cost;
-
-select group_concat(invoice separator ',') from invoice
- group by 
-
- select C.c_iTel, C.c_iDate from invoice as I inner join calculate_cost as C on I.i_check='Y'
-  and (select distinct concat(i_consigneeTel, ',', i_orderDate) from invoice);
-
-
-select distinct concat(i_consigneeTel, ',', i_orderDate) from invoice where i_check='Y';
-
-
-create table test (
-	t_str varchar(100) primary key,
-	t_shopCost int(10) 
-) default charset=utf8;
-
-select * from test;
-drop table test;
-insert ignore into test(t_str) select distinct concat(i_consigneeTel, ',', i_orderDate) from invoice where i_check='Y';
-
-select I.i_pId, I.i_amount, P.p_price, (I.i_amount*P.p_price) from invoice as I
- inner join product as P
- on I.i_pId=P.p_id;
-
-
-update test as T,
- inner join invoice as I
-  on T.t_str=concat(I.i_consigneeTel, ',', I.i_orderDate)
- inner join product as P
-  on P.p_id=I.i_pId
- set T.t_shopCost = sum(I.i_amount*P.p_price)
- where T.t_str=concat(I.i_consigneeTel, ',', I.i_orderDate);
-
-select * from invoice as I
- inner join test as T on concat(I.i_consigneeTel, ',', I.i_orderDate)=T.t_str;
-
-
-update test
- set t_shopCost=
- select sum(I.i_amount*P.p_price) from invoice as I
- inner join product as P
-  on I.i_pId=P.p_id
- inner join test as T
-  on concat(I.i_consigneeTel, ',', I.i_orderDate)=T.t_str
- where T.t_str=concat(I.i_consigneeTel, ',', I.i_orderDate);
-
-
-select * from invoice where concat(i_consigneeTel, ',', i_orderDate)='010-1111-2222,2019-04-28 13:00:00';
-
-
-select * from invoice where i_id=100001;
-select * from test;
-
-select substr(t_str from 1 for 13) from test;  전화번호 
-select substr(t_str from 15) from test;  날짜 
-
-select * from test where substr(t_str from 1 for 13)='010-1111-2222';
-
-select * from invoice inner join test
- where substr(test.t_str from 1 for 13)=invoice.i_consigneeTel
-  and substr(test.t_str from 15)=invoice.i_orderDate
-  and concat(invoice.i_consigneeTel, ',', invoice.i_orderDate)=test.t_str;
-
-
-select I.i_pId, I.i_amount, P.p_price, (I.i_amount*P.p_price) from invoice as I
- inner join product as P
- on I.i_pId=P.p_id;
-
- 
-select sum(I.i_amount*P.p_price), P.p_oId from invoice as I
- inner join product as P
-  on I.i_pId=P.p_id
- inner join test as T
-  on concat(I.i_consigneeTel, ',', I.i_orderDate)=T.t_str;
- 
-
-select count(distinct concat(i_consigneeTel, ',', i_orderDate)) from invoice;
-
-select i_pId, i_amount from invoice where distinct concat(i_consigneeTel, ',', i_orderDate);
-
-where distinct concat(i_consigneeTel, ',', i_orderDate)
-
-select invoice as I inner join test as T
-
-select concat('하이', ',', now());
-
-select hour(now());
- 
-*/
 
 /* calculate_cost */
 /* 비용 계산 테이블 값 추가하는 쿼리문 */

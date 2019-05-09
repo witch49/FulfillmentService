@@ -19,7 +19,7 @@
         <ul class="nav navbar-nav navbar-right">
           <c:if test="${id > 30000 && id < 80000 }">
 			<p class="navbar-text">${memberName}님 환영합니다</p>
-          	<li><a href="/FulfillmentService/LoginProc?action=logout">로그아웃</a></li>
+          	<li><a style="background: #FFF; border-radius: 5px; right-padding: 5px; text-align:center;" href="/FulfillmentService/LoginProc?action=logout">로그아웃</a></li>
 		  </c:if>
         </ul>
       </div><!-- /.navbar-collapse -->

@@ -68,13 +68,10 @@ public class FileProc extends HttpServlet {
 			iDao = new InvoiceDAO();
 
 			invoiceList = iDao.selectInvoiceAll();
+			
 			//request.setAttribute("fileName", fileName);
 			//request.setAttribute("finalPath", finalPath);
 			request.setAttribute("invoiceList", invoiceList);
-			
-			//rd = request.getRequestDispatcher("admin/invoiceProcess.jsp");
-			//rd.forward(request, response);
-			//LOG.trace("관리자 - 송장 처리 화면으로 넘어가기 success");
 
 			rd = request.getRequestDispatcher("admin/invoiceProcess.jsp");
 			rd.forward(request, response);

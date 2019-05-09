@@ -36,21 +36,20 @@
 			<p>구매처 대금 지불 금액을 확인하는 화면입니다.</p>
 			<br>
 		 	<div class="col-xs-11" >
-		 	<table class="table table-hover">
-  				<tr><th>구매처 id</th><th>구매처 이름</th><th>구매처 대금 지불 금액(원)</th><th>주문자 전화번호</th><th>주문날짜</th></tr>
-  				<c:set var="ccList" value="${requestScope.calList}"/>
-				<c:forEach var="cc" items="${ccList}">
-  					<tr>
-  						<td>${cc.c_comId}</td>
-	  					<td>${cc.c_comName}</td>
-	  					<td>${cc.c_oCost}</td>
-	  					<td>${cc.c_iTel}</td>
-	  					<td>${cc.c_iDate}</td>
-  					</tr>
-  				</c:forEach>
-			</table>
+			 	<table class="table table-hover">
+	  				<tr><th>구매처 id</th><th>구매처 이름</th><th>구매처 대금 지불 금액(원)</th><th>주문자 전화번호</th><th>주문날짜</th></tr>
+	  				<c:set var="ccList" value="${requestScope.calList}"/>
+					<c:forEach var="cc" items="${ccList}">
+	  					<tr>
+	  						<td>${cc.c_comId}</td>
+		  					<td>${cc.c_comName}</td>
+		  					<td>${cc.c_oCost}</td>
+		  					<td>${cc.c_iTel}</td>
+		  					<td>${cc.c_iDate}</td>
+	  					</tr>
+	  				</c:forEach>
+				</table>
 		 	</div>
-			
 		 </div>
  	</div>
  </div>

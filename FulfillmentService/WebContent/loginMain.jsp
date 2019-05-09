@@ -16,16 +16,20 @@
 <div class="container-fluid">
 	<div class="row">
 		<jsp:include page="/admin/common/navigator.jsp"/>
-		<div class="col-sm-10  main">
+		
+		<div class="col-sm-9 col-md-10  main">
 			<div class="jumbotron">
-		 		<h1>방문을 환영합니다</h1>
+		 		<h2>방문을 환영합니다</h2>
 		 		<hr>
-		 		<h3>로그인 메인 출력 화면</h3>
+		 		<p style="font-size: 1.2em;">
+		 			저희 회사는 창고 물류 시스템을 서비스중입니다.
+		 			<br>서비스와 관련해 자세한 문의사항은 010-xxxx-xxxx로 연락주세요.</p>
+			</div>
+			<div class="thumbnail" style="border:0 none;  box-shadow: none;">
+		 		<img src="admin/img/loginMain.png" alt="loginMain">
 			</div>
 		 </div>
-		<div>
-		 	<img src="admin/img/loginMain.png" alt="loginMain">
-		</div>
+		
  	</div>
  </div>
  
