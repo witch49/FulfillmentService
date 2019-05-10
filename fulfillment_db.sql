@@ -150,14 +150,6 @@ ignore 1 rows
  set i_orderDate = timestamp(str_to_date(@var1, '%Y-%m-%d %H:%i'));
 
 
-/* cost 테이블에 값들 insert 하는 부분 */
-delete from calculate_cost;
-insert into calculate_cost(c_iTel, c_iDate, c_sCost, c_oCost)
- select I.i_consigneeTel, I.i_orderDate, sum(P.p_price*I.i_amount), (sum(P.p_price*I.i_amount)*1.1 + 10000) from invoice as I
- inner join product as P on I.i_pId=P.p_id and I.i_check='Y'
- group by I.i_consigneeTel, I.i_orderDate order by I.i_id;
-
-
 /* 날짜 확인해서 만족하면 && 재고 물량이 10개 이상이라면 ->
   invoice check 를 Y로 상태 바꾸기 &  product의 amount를 갱신하기 */
 update invoice as I inner join product as P on P.p_id=I.i_pId
@@ -184,6 +176,7 @@ update invoice as I inner join product as P on P.p_id=I.i_pId
 );
 
 /* update 한 이후에 Y인 부분을 cost 테이블에 추가하도록 하기 
+ * cost 테이블에 값들 insert 하는 부분 
   ================================================
 쇼핑몰 : 대금 청구액은 (물품 가격*1.1 + 송장 1건당 10000원)
 구매처 : 지급해야 할 금액은 (물품 가격)
@@ -222,7 +215,7 @@ select * from calculate_cost;
 select P.p_id, P.p_name, P.p_price, P.p_amount, P.p_oId, O.o_name from product as P
  inner join order_company as O on P.p_oId=O.o_id;
  
- 
+
 /* 발주 요청 시 내일 10시가 지나면 재고 추가되도록 하기 */
 /* 내일 오전 10시 select */
 select CURDATE() + INTERVAL 0 SECOND + INTERVAL 1 DAY + INTERVAL 10 HOUR;
@@ -236,13 +229,28 @@ select * from product;
 drop event orderRequest_event_01;
 
 show events from fulfillment;
-/* 1번은 11개였고 4번은 31개였음 */
 
+/* 매출 총 이익 출력하기 */
+select sum(c_sCost-c_oCost-c_tCost) from calculate_cost;
+
+select sum(c_sCost - c_oCost - c_tCost) from calculate_cost
+ where year(c_iDate)=2019 and month(c_iDate) = 4;
+
+select year(c_iDate) from calculate_cost
+
+select * from calculate_cost;
 
 /* 쇼핑몰 전체 판매 내역 확인 (월단위x)*/
 select distinct C.c_iTel, C.c_iDate, C.c_sCost, I.i_sId, S.s_name from calculate_cost as C
  inner join invoice as I on I.i_consigneeTel=C.c_iTel and I.i_orderDate=C.c_iDate
  inner join shopping_mall as S on S.s_id=I.i_sId
+ order by C.c_iDate desc;
+ 
+/* 쇼핑몰 월단위 판매 내역 확인 (선택한 월을 기준으로 출력) */
+select distinct C.c_iTel, C.c_iDate, C.c_sCost, I.i_sId, S.s_name from calculate_cost as C
+ inner join invoice as I on I.i_consigneeTel=C.c_iTel and I.i_orderDate=C.c_iDate
+ inner join shopping_mall as S on S.s_id=I.i_sId
+ where C.c_iDate like '%2019-05%'
  order by C.c_iDate desc;
 
 
