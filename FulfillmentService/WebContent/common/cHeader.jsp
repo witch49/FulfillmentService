@@ -11,16 +11,20 @@
           <span class="icon-bar"></span>
           <span class="icon-bar"></span>
         </button>
-        <a class="navbar-brand" href="#" style="color:white">[일조 Trillion] Fulfillment Service</a>
+       <img src="${pageContext.request.contextPath}/Resources/img/trillionlogowhite.png"
+      	 onclick="javascript:location.href='${pageContext.request.contextPath}/view/cLoginMain.jsp'">&nbsp;&nbsp;&nbsp;
       </div>
 
       <!-- Collect the nav links, forms, and other content for toggling -->
       <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-        <ul class="nav navbar-nav navbar-right">
-          <c:if test="${id > 30000 && id < 80000 }">
+		<br>
+        <ul class="nav navbar-nav navbar-right"> 	
 			<p class="navbar-text">${memberName}님 환영합니다</p>
-          	<li><a style="background: #FFF; border-radius: 5px; right-padding: 5px; text-align:center;" href="/FulfillmentService/LoginProc?action=logout">로그아웃</a></li>
-		  </c:if>
+          	<li>
+          		<form action="/FulfillmentService/LoginProc?action=logout" method="post">
+          		<button type="submit" class="btn" style="color:#337AB7; background:white;">로그아웃</button>
+          		</form>
+         	</li>
         </ul>
       </div><!-- /.navbar-collapse -->
     </div><!-- /.container-fluid -->

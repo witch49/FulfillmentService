@@ -1,7 +1,9 @@
 
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.StringTokenizer;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -41,10 +43,10 @@ public class CalculateCostProc extends HttpServlet {
 		List<CalculateCostDTO> calList = null;
 		InvoiceDTO iDto = null;
 		InvoiceDAO iDao = null;
-		List<InvoiceDTO> invoiceList = null;
-		List<InvoiceDTO> invoiceDetailList = null;
-		int id = 0;
-		int iId = 0;
+		List<InvoiceDTO> invoiceList = null, invoiceDetailList = null;
+		List<String> pageList = new ArrayList<String>();
+		int id = 0, iId = 0, curPage= 1;
+		String date = "", idStr = "";
 		HttpSession session = request.getSession();
 		RequestDispatcher rd = null;
 		String action = request.getParameter("action");
@@ -56,7 +58,7 @@ public class CalculateCostProc extends HttpServlet {
 			cDao = new CalculateCostDAO();
 			calList = cDao.selectAllShopping();
 			request.setAttribute("calList", calList);
-			rd = request.getRequestDispatcher("admin/monthlySalesHistory.jsp");
+			rd = request.getRequestDispatcher("view/monthlySalesHistory.jsp");
 			rd.forward(request, response);
 			LOG.trace("calculateShop 성공");
 			break;
@@ -67,7 +69,7 @@ public class CalculateCostProc extends HttpServlet {
 			cDao = new CalculateCostDAO();
 			calList = cDao.selectAllOrder();
 			request.setAttribute("calList", calList);
-			rd = request.getRequestDispatcher("admin/monthlyOrderHistory.jsp");
+			rd = request.getRequestDispatcher("view/monthlyOrderHistory.jsp");
 			rd.forward(request, response);
 			LOG.trace("calculateOrder 성공");
 			break;
@@ -78,7 +80,7 @@ public class CalculateCostProc extends HttpServlet {
 			cDao = new CalculateCostDAO();
 			calList = cDao.selectAllTrans();
 			request.setAttribute("calList", calList);
-			rd = request.getRequestDispatcher("admin/monthlyTransitHistory.jsp");
+			rd = request.getRequestDispatcher("view/monthlyTransitHistory.jsp");
 			rd.forward(request, response);
 			LOG.trace("calculateTransit 성공");
 			break;
@@ -87,11 +89,9 @@ public class CalculateCostProc extends HttpServlet {
 		case "invoiceCheck": // 관리자 - 송장 처리 화면으로 이동하는 부분
 			LOG.trace("관리자 - 송장 처리 화면으로 넘어가기 start");
 			iDao = new InvoiceDAO();
-
 			invoiceList = iDao.selectInvoiceAll();
-
 			request.setAttribute("invoiceList", invoiceList);
-			rd = request.getRequestDispatcher("admin/invoiceProcess.jsp");
+			rd = request.getRequestDispatcher("view/invoiceProcess.jsp");
 			rd.forward(request, response);
 			LOG.trace("관리자 - 송장 처리 화면으로 넘어가기 success");
 			break;
@@ -103,12 +103,10 @@ public class CalculateCostProc extends HttpServlet {
 				iId = Integer.parseInt(request.getParameter("iId"));
 			}
 			iDao = new InvoiceDAO();
-			
-			invoiceDetailList = iDao.selectInvoiceDatailAll(iId);
-			
+			invoiceDetailList = iDao.selectInvoiceDetailAll(iId);
 			request.setAttribute("invoiceDetailList", invoiceDetailList);
 			request.setAttribute("iId", iId);
-			rd = request.getRequestDispatcher("admin/invoiceProcessDetail.jsp");
+			rd = request.getRequestDispatcher("view/invoiceProcessDetail.jsp");
 			rd.forward(request, response);
 			LOG.trace("관리자 - 송장 처리 상세화면으로 넘어가기 success");
 			break;
@@ -122,10 +120,7 @@ public class CalculateCostProc extends HttpServlet {
 			cDao = new CalculateCostDAO();
 			cDao.deleteDBTable();
 			cDao.insertDBTable();	// 판매내역 관련 DB 테이블에 데이터 추가
-			
-			//invoiceList = request.getParameter("invoiceList");
 			request.setAttribute("invoiceList", invoiceList);
-			
 			rd = request.getRequestDispatcher("CalculateCostProc?action=invoiceCheck");
 			rd.forward(request, response);
 			LOG.trace("invoiceUpdate 성공");
@@ -133,6 +128,237 @@ public class CalculateCostProc extends HttpServlet {
 			break;
 			
 		/////////////////////////////////////////////////////////////////
+		case "pickMonthForSales":	// 월단위 판매내역(쇼핑몰)에서 달력 선택 시 일어나는 부분
+			LOG.trace("pickMonthForSales start");
+			if (!request.getParameter("selectMonth").equals(""))
+				date = request.getParameter("selectMonth");
+			//LOG.trace("date = " + date);
+			cDao = new CalculateCostDAO();
+			calList = cDao.selectMonthSales(date);
+			request.setAttribute("calList", calList);
+			rd = request.getRequestDispatcher("view/monthlySalesHistory.jsp");
+			rd.forward(request, response);
+
+			LOG.trace("pickMonthForSales success");
+			break;
+
+		/////////////////////////////////////////////////////////////////
+
+		case "pickMonthForOrder": // 월단위 발주내역(구매처)에서 달력 선택 시 일어나는 부분
+			LOG.trace("pickMonthForOrder start");
+			if (!request.getParameter("selectMonth").equals(""))
+				date = request.getParameter("selectMonth");
+			cDao = new CalculateCostDAO();
+			calList = cDao.selectMonthOrder(date);
+			request.setAttribute("calList", calList);
+			rd = request.getRequestDispatcher("view/monthlyOrderHistory.jsp");
+			rd.forward(request, response);
+			LOG.trace("pickMonthForOrder success");
+			break;
+
+		/////////////////////////////////////////////////////////////////
+		case "pickMonthForTransit": // 월단위 운송내역(운송 회사)에서 달력 선택 시 일어나는 부분
+			LOG.trace("pickMonthForTransit start");
+			if (!request.getParameter("selectMonth").equals(""))
+				date = request.getParameter("selectMonth");
+			cDao = new CalculateCostDAO();
+			calList = cDao.selectMonthTransit(date);
+			request.setAttribute("calList", calList);
+			rd = request.getRequestDispatcher("view/monthlyTransitHistory.jsp");
+			rd.forward(request, response);
+			LOG.trace("pickMonthForTransit success");
+			break;
+
+		/////////////////////////////////////////////////////////////////
+
+		case "totalSales_2017": // 매출 총이익 (17년도)
+			LOG.trace("totalSales_2017 start");
+			cDao = new CalculateCostDAO();
+			request.setAttribute("Jan", cDao.totalSalesChart(2017, 1));
+			request.setAttribute("Feb", cDao.totalSalesChart(2017, 2));
+			request.setAttribute("Mar", cDao.totalSalesChart(2017, 3));
+			request.setAttribute("Apr", cDao.totalSalesChart(2017, 4));
+			request.setAttribute("May", cDao.totalSalesChart(2017, 5));
+			request.setAttribute("Jun", cDao.totalSalesChart(2017, 6));
+			request.setAttribute("Jul", cDao.totalSalesChart(2017, 7));
+			request.setAttribute("Aug", cDao.totalSalesChart(2017, 8));
+			request.setAttribute("Sep", cDao.totalSalesChart(2017, 9));
+			request.setAttribute("Oct", cDao.totalSalesChart(2017, 10));
+			request.setAttribute("Nov", cDao.totalSalesChart(2017, 11));
+			request.setAttribute("Dec", cDao.totalSalesChart(2017, 12));
+			request.setAttribute("year", 2017);
+			rd = request.getRequestDispatcher("view/totalSales.jsp");
+			rd.forward(request, response);
+
+			LOG.trace("totalSales_2017 success");
+			break;
+
+		/////////////////////////////////////////////////////////////////
+
+		case "totalSales_2018": // 매출 총이익 (18년도)
+			LOG.trace("totalSales_2018 start");
+			cDao = new CalculateCostDAO();
+			request.setAttribute("Jan", cDao.totalSalesChart(2018, 1));
+			request.setAttribute("Feb", cDao.totalSalesChart(2018, 2));
+			request.setAttribute("Mar", cDao.totalSalesChart(2018, 3));
+			request.setAttribute("Apr", cDao.totalSalesChart(2018, 4));
+			request.setAttribute("May", cDao.totalSalesChart(2018, 5));
+			request.setAttribute("Jun", cDao.totalSalesChart(2018, 6));
+			request.setAttribute("Jul", cDao.totalSalesChart(2018, 7));
+			request.setAttribute("Aug", cDao.totalSalesChart(2018, 8));
+			request.setAttribute("Sep", cDao.totalSalesChart(2018, 9));
+			request.setAttribute("Oct", cDao.totalSalesChart(2018, 10));
+			request.setAttribute("Nov", cDao.totalSalesChart(2018, 11));
+			request.setAttribute("Dec", cDao.totalSalesChart(2018, 12));
+			request.setAttribute("year", 2018);
+			rd = request.getRequestDispatcher("view/totalSales.jsp");
+			rd.forward(request, response);
+
+			LOG.trace("totalSales_2018 success");
+			break;
+
+		/////////////////////////////////////////////////////////////////
+
+		case "totalSales_2019": // 매출 총이익으로 화면 전환하는 부분(19년도로 고정)
+			LOG.trace("totalSales_2019 start");
+			cDao = new CalculateCostDAO();
+			request.setAttribute("Jan", cDao.totalSalesChart(2019, 1));
+			request.setAttribute("Feb", cDao.totalSalesChart(2019, 2));
+			request.setAttribute("Mar", cDao.totalSalesChart(2019, 3));
+			request.setAttribute("Apr", cDao.totalSalesChart(2019, 4));
+			request.setAttribute("May", cDao.totalSalesChart(2019, 5));
+			request.setAttribute("Jun", cDao.totalSalesChart(2019, 6));
+			request.setAttribute("Jul", cDao.totalSalesChart(2019, 7));
+			request.setAttribute("Aug", cDao.totalSalesChart(2019, 8));
+			request.setAttribute("Sep", cDao.totalSalesChart(2019, 9));
+			request.setAttribute("Oct", cDao.totalSalesChart(2019, 10));
+			request.setAttribute("Nov", cDao.totalSalesChart(2019, 11));
+			request.setAttribute("Dec", cDao.totalSalesChart(2019, 12));
+			request.setAttribute("year", 2019);
+			rd = request.getRequestDispatcher("view/totalSales.jsp");
+			rd.forward(request, response);
+
+			LOG.trace("totalSales_2019 success");
+			break;
+
+		/////////////////////////////////////////////////////////////////
+
+		case "cTodayHistory": // 운송 회사&구매처의 일별 주문내역 화면으로 전환하는 부분. default값은 오늘날짜 화면.
+			LOG.trace("cTransitComTodayHistory start");
+			idStr = (String) session.getAttribute("id");
+			id = Integer.parseInt(idStr);
+			LOG.trace("id=" + id);
+			iDao = new InvoiceDAO();
+			if(id >= 50001 && id <= 70000)	// 운송 회사
+				invoiceList = iDao.selectTodayTransitCom(id);
+			if(id >= 70001 && id <= 90000)	// 구매처
+				invoiceList = iDao.selectTodayOrderCom(id);
+			
+			request.setAttribute("invoiceList", invoiceList);
+			rd = request.getRequestDispatcher("view/cDailyOrderHistory.jsp");
+			rd.forward(request, response);
+			LOG.trace("cTransitComTodayHistory success");
+			break;
+			
+		/////////////////////////////////////////////////////////////////
+
+		case "cSelectDate": // 운송 회사&구매처의 일별 주문내역 확인 시 날짜 선택하면 일어나는 부분
+			LOG.trace("cTransitComSelectDate start");
+			idStr = (String) session.getAttribute("id");
+			id = Integer.parseInt(idStr);
+			LOG.trace("id=" + id);
+			if (!request.getParameter("selectDate").equals(""))
+				date = request.getParameter("selectDate");
+			
+			iDao = new InvoiceDAO();
+			if(id >= 50001 && id <= 70000)	// 운송 회사
+				invoiceList = iDao.selectDateTransitCom(date, id);
+			if(id >= 70001 && id <= 90000)	// 구매처
+				invoiceList = iDao.selectDateOrderCom(date, id);
+
+			request.setAttribute("invoiceList", invoiceList);
+			rd = request.getRequestDispatcher("view/cDailyOrderHistory.jsp");
+			rd.forward(request, response);
+			LOG.trace("cTransitComSelectDate success");
+			break;
+		/////////////////////////////////////////////////////////////////
+			
+		case "cNowMonthHistory": // 운송 회사&구매처의 월별 주문내역 화면으로 전환하는 부분. default값은 이번달
+			LOG.trace("cTransitComNowMonthHistory start");
+			idStr = (String) session.getAttribute("id");
+			id = Integer.parseInt(idStr);
+			LOG.trace("id=" + id);
+			iDao = new InvoiceDAO();
+			if(id >= 50001 && id <= 70000)	// 운송 회사
+				invoiceList = iDao.selectNowMonthTransitCom(id);
+			if(id >= 70001 && id <= 90000)	// 구매처
+				invoiceList = iDao.selectNowMonthOrderCom(id);
+			
+			request.setAttribute("invoiceList", invoiceList);
+			rd = request.getRequestDispatcher("view/cMonthlyOrderHistory.jsp");
+			rd.forward(request, response);
+			LOG.trace("cTransitComNowMonthHistory success");
+			break;
+			
+		/////////////////////////////////////////////////////////////////
+			
+		case "cSelectMonth": // 운송 회사&구매처의 월별 주문내역 화면으로 전환하는 부분. default값은 이번달
+			LOG.trace("cTransitComSelectMonth start");
+			idStr = (String) session.getAttribute("id");
+			id = Integer.parseInt(idStr);
+			LOG.trace("id=" + id);
+			if (!request.getParameter("selectMonth").equals(""))
+				date = request.getParameter("selectMonth");
+			
+			iDao = new InvoiceDAO();
+			if(id >= 50001 && id <= 70000)	// 운송 회사
+				invoiceList = iDao.selectMonthTransitCom(date, id);
+			if(id >= 70001 && id <= 90000)	// 구매처
+				invoiceList = iDao.selectMonthOrderCom(date, id);
+			
+			request.setAttribute("invoiceList", invoiceList);
+			rd = request.getRequestDispatcher("view/cMonthlyOrderHistory.jsp");
+			rd.forward(request, response);
+			LOG.trace("cTransitComSelectMonth success");
+			break;
+			
+		/////////////////////////////////////////////////////////////////
+			
+		case "list":
+			if (!request.getParameter("page").equals("")) {
+				curPage = Integer.parseInt(request.getParameter("page"));
+			}
+			LOG.trace("curPage:" + curPage);
+			cDao = new CalculateCostDAO();
+			int count = cDao.getCount();
+			if (count == 0)			// 데이터가 없을 때 대비
+				count = 1;
+			int pageNo = (int)Math.ceil(count/10.0);
+			if (curPage > pageNo)	// 경계선에 걸렸을 때 대비
+				curPage--;
+			
+			session.setAttribute("currentBbsPage", curPage);
+			
+			// 리스트 페이지의 하단 페이지 데이터 만들어 주기
+			String page = null;
+			page = "<a href=#>&laquo;</a>&nbsp;";
+			pageList.add(page);
+			for (int i=1; i<=pageNo; i++) {
+				page = "&nbsp;<a href=CalculateCostProc?action=list&page=" + i + ">" + i + "</a>&nbsp;";
+				pageList.add(page);
+			}
+			page = "&nbsp;<a href=#>&raquo;</a>";
+			pageList.add(page);
+			
+			List<CalculateCostDTO> ipList = cDao.selectShoppingPage(curPage);
+			LOG.trace("ipList:" + ipList.toString());
+			request.setAttribute("ipList", ipList);
+			request.setAttribute("pageList", pageList);
+			rd = request.getRequestDispatcher("view/monthlySalesHistory.jsp");
+	        rd.forward(request, response);
+			break;	
+			
+		////////////////////////////////////////////////////////////////////////
 		default:
 			LOG.trace("action이 잘못된 값으로 설정됨");
 

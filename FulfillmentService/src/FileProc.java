@@ -73,7 +73,7 @@ public class FileProc extends HttpServlet {
 			//request.setAttribute("finalPath", finalPath);
 			request.setAttribute("invoiceList", invoiceList);
 
-			rd = request.getRequestDispatcher("admin/invoiceProcess.jsp");
+			rd = request.getRequestDispatcher("view/invoiceProcess.jsp");
 			rd.forward(request, response);
 			LOG.trace("fileUpload 성공");
 			break;

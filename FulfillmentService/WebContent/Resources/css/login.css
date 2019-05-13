@@ -17,7 +17,8 @@
 		padding: 50px 0;
 		text-align: center;
 		text-transform: uppercase;
-		background: #6498fe;
+		background: #3F8BC9;
+		/*background: #6498fe;*/
 	}
 	.form-group {
 	  margin-bottom: 15px;
@@ -106,7 +107,8 @@
 	  -webkit-transition: -webkit-transform 0.3s;
 	}
 	input.btn[type="submit"] {
-	  background: #6498fe;
+	  background: #5bc0de;
+	  /*background: #6498fe;*/
 	  border:none;
 	  border-radius: 2px;
 	  color: #fff;

@@ -301,7 +301,9 @@ public class ProductDAO {
 	/* 관리자 - 재고 목록 화면 : 아이템 클릭 시 상세 화면 출력 부분 */
 	public List<ProductDTO> selectDetail(int pId) {
 		LOG.trace("ProductDAO selectDetail() start");
-		String sql = "select * from product where p_id=?;";
+		String sql = "select P.p_id, P.p_name, P.p_img, P.p_price, P.p_amount, P.p_oId, O.o_name from product as P" + 
+				" inner join order_company as O on O.o_id = P.p_oId" + 
+				" where P.p_id = ?;";
 		PreparedStatement pStmt = null;
 		List<ProductDTO> pList = new ArrayList<ProductDTO>();
 
@@ -318,6 +320,7 @@ public class ProductDAO {
 				p.setpPrice(rs.getInt(4));
 				p.setpAmount(rs.getInt(5));
 				p.setP_oId(rs.getInt(6));
+				p.setP_oName(rs.getString(7));
 				pList.add(p);
 			}
 		} catch (Exception e) {
@@ -380,6 +383,36 @@ public class ProductDAO {
 			}
 		}
 		LOG.trace("ProductDAO SendOrderRequest() success");
+	}
+	
+	
+	public int selectProductCount() {
+		LOG.trace("ProductDAO selectProductCount() start");
+		String sql = "select count(p_id) from product where p_amount <= 10;";
+		PreparedStatement pStmt = null;
+		int rowCount = 0;
+
+		try {
+			pStmt = conn.prepareStatement(sql);
+			ResultSet rs = pStmt.executeQuery();
+
+			if(rs.next())
+				rowCount = rs.getInt(1);
+			
+		} catch (Exception e) {
+			LOG.trace("ProductDAO selectAllItemsDetail() ERROR");
+			e.printStackTrace();
+		} finally {
+			try {
+				if (pStmt != null && !pStmt.isClosed())
+					pStmt.close();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		LOG.trace("ProductDAO selectProductCount() success");
+		LOG.trace("rowCount : " + rowCount);
+		return rowCount;
 	}
 	
 }

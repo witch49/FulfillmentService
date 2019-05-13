@@ -62,7 +62,7 @@ public class ProductProc extends HttpServlet {
 			request.setAttribute("pListFruit", pListFruit);
 			request.setAttribute("pListHomeAppliances", pListHomeAppliances);
 			
-			rd = request.getRequestDispatcher("admin/checkInventory.jsp");
+			rd = request.getRequestDispatcher("view/checkInventory.jsp");
 			rd.forward(request, response);
 			LOG.trace("showItems 성공");
 			break;
@@ -79,7 +79,7 @@ public class ProductProc extends HttpServlet {
 			
 			request.setAttribute("pListItemDetail", pListItemDetail);
 			request.setAttribute("pId", pId);
-			rd = request.getRequestDispatcher("admin/checkInventoryDetail.jsp");
+			rd = request.getRequestDispatcher("view/checkInventoryDetail.jsp");
 			rd.forward(request, response);
 			LOG.trace("showItemsDetail success");
 			break;
@@ -90,7 +90,7 @@ public class ProductProc extends HttpServlet {
 			pDao = new ProductDAO();
 			pList = pDao.selectAllItems();
 			request.setAttribute("pList", pList);
-			rd = request.getRequestDispatcher("admin/orderRequest.jsp");
+			rd = request.getRequestDispatcher("view/orderRequest.jsp");
 			rd.forward(request, response);
 			LOG.trace("requestItems 성공");
 			break;
@@ -107,7 +107,7 @@ public class ProductProc extends HttpServlet {
 			
 			request.setAttribute("pList", pList);
 			request.setAttribute("pId", pId);
-			rd = request.getRequestDispatcher("admin/orderRequestDetail.jsp");
+			rd = request.getRequestDispatcher("view/orderRequestDetail.jsp");
 			rd.forward(request, response);
 			LOG.trace("requestItemsDetail success");
 			break;

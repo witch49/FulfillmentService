@@ -35,7 +35,11 @@ public class InvoiceDAO {
 		LOG.trace("InvoiceDAO selectInvoiceAll() start");
 		PreparedStatement pStmt = null;
 		List<InvoiceDTO> invoiceList = new ArrayList<>();
-		String sql = "select i_id, i_consigneeName, i_orderDate, i_sId, i_tId, i_check from invoice order by i_orderDate;";
+		String sql = "select I.i_id, I.i_consigneeName, I.i_orderDate, S.s_id, S.s_name, T.t_id, T.t_name, i_check from invoice as I" + 
+				" inner join shopping_mall as S on I.i_sId = S.s_id" + 
+				" inner join trans_company as T on I.i_tId = T.t_id" + 
+				" group by I.i_consigneeTel, I.i_orderDate" + 
+				" order by i_orderDate;";
 		
 		try {
 			pStmt = conn.prepareStatement(sql);
@@ -45,10 +49,11 @@ public class InvoiceDAO {
 				i.setiId(rs.getInt(1));
 				i.setiConsigneeName(rs.getString(2));
 				i.setiOrderDate(rs.getString(3).substring(0, 16));
-				//LOG.trace("날짜"+rs.getString(3));
 				i.setI_sId(rs.getInt(4));
-				i.setI_tId(rs.getInt(5));
-				i.setiCheck(rs.getString(6));
+				i.setI_sName(rs.getString(5));
+				i.setI_tId(rs.getInt(6));
+				i.setI_tName(rs.getString(7));
+				i.setiCheck(rs.getString(8));
 				invoiceList.add(i);
 			}
 		} catch (Exception e) {
@@ -66,8 +71,8 @@ public class InvoiceDAO {
 		return invoiceList;
 	}
 	
-	public List<InvoiceDTO> selectInvoiceDatailAll(int iId) {
-		LOG.trace("InvoiceDAO selectInvoiceDatailAll() start");
+	public List<InvoiceDTO> selectInvoiceDetailAll(int iId) {
+		LOG.trace("InvoiceDAO selectInvoiceDetailAll() start");
 		PreparedStatement pStmt = null;
 		List<InvoiceDTO> invoiceDetailList = new ArrayList<>();
 		String sql = "select * from invoice where i_id=?;";
@@ -92,7 +97,7 @@ public class InvoiceDAO {
 				invoiceDetailList.add(i);
 			}
 		} catch (Exception e) {
-			LOG.trace("InvoiceDAO selectInvoiceDatailAll() ERROR");
+			LOG.trace("InvoiceDAO selectInvoiceDetailAll() ERROR");
 			e.printStackTrace();
 		} finally {
 			try {
@@ -102,7 +107,7 @@ public class InvoiceDAO {
 				e.printStackTrace();
 			}
 		}
-		LOG.trace("InvoiceDAO selectInvoiceDatailAll() success");
+		LOG.trace("InvoiceDAO selectInvoiceDetailAll() success");
 		return invoiceDetailList;
 	}
 	
@@ -113,7 +118,7 @@ public class InvoiceDAO {
 		PreparedStatement pStmt = null;
 		String sql = "update invoice as I inner join product as P on P.p_id=I.i_pId" + 
 				" set I.i_check='Y', P.p_amount=P.p_amount-I.i_amount" + 
-				" where P.p_amount - I.i_amount > 9" + 
+				" where P.p_amount - I.i_amount > 0" + 
 				" and (" + 
 				" 	(I.i_orderDate <= date_sub(now(), interval 1 day) and hour(I.i_orderDate) < 18 )" + 
 				" 	or (" + 
@@ -143,6 +148,333 @@ public class InvoiceDAO {
 			}
 		}
 		LOG.trace("InvoiceDAO updateInvoiceAll() success");
+	}
+	
+	
+	/* 운송 회사가 일별 주문 내역을 확인하는 화면. default = TODAY */
+	public List<InvoiceDTO> selectTodayTransitCom(int id) {
+		LOG.trace("InvoiceDAO selectTodayTransitCom() start");
+		PreparedStatement pStmt = null;
+		List<InvoiceDTO> invoiceDetailList = new ArrayList<>();
+		String sql = "select I.i_id, I.i_consigneeName, I.i_consigneeTel, I.i_orderDate, C.c_tCost from invoice as I" + 
+				" inner join calculate_cost as C on C.c_iTel = I.i_consigneeTel and C.c_iDate = I.i_orderDate" + 
+				" inner join trans_company as T on T.t_id=I.i_tId" + 
+				" where date(I.i_orderDate) = date(now()) and I.i_tId = ?" + 
+				" group by I.i_consigneeTel, I.i_orderDate" + 
+				" order by I.i_orderDate desc;";
+		try {
+			pStmt = conn.prepareStatement(sql);	
+			pStmt.setInt(1, id);
+			ResultSet rs = pStmt.executeQuery();
+			while (rs.next()) {
+				InvoiceDTO i = new InvoiceDTO();
+				i.setiId(rs.getInt(1));
+				i.setiConsigneeName(rs.getString(2));
+				i.setiConsigneeTel(rs.getString(3));
+				i.setiOrderDate( rs.getString(4).substring(0, 16));
+				i.setCost(rs.getInt(5));
+				invoiceDetailList.add(i);
+			}
+		} catch (Exception e) {
+			LOG.trace("InvoiceDAO selectTodayTransitCom() ERROR");
+			e.printStackTrace();
+		} finally {
+			try {
+				if (pStmt != null && !pStmt.isClosed())
+					pStmt.close();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		LOG.trace("InvoiceDAO selectTodayTransitCom() success");
+		return invoiceDetailList;
+		
+	}
+	
+	
+	/*  운송 회사가 일별 주문 내역 화면에서 날짜 선택 시 처리하는 부분 */
+	public List<InvoiceDTO> selectDateTransitCom(String date, int id) {
+		LOG.trace("InvoiceDAO selectDateTransitCom() start");
+		PreparedStatement pStmt = null;
+		List<InvoiceDTO> invoiceDetailList = new ArrayList<>();
+		String sql = "select I.i_id, I.i_consigneeName, I.i_consigneeTel, I.i_orderDate, C.c_tCost from invoice as I" + 
+				" inner join calculate_cost as C on C.c_iTel = I.i_consigneeTel and C.c_iDate = I.i_orderDate" + 
+				" inner join trans_company as T on T.t_id = I.i_tId" +
+				" where I.i_orderDate like '%" + date + "%' and I.i_tId = ?" + 
+				" group by I.i_consigneeTel, I.i_orderDate" + 
+				" order by I.i_orderDate desc;";
+		try {
+			pStmt = conn.prepareStatement(sql);
+			pStmt.setInt(1, id);
+			ResultSet rs = pStmt.executeQuery();
+			while (rs.next()) {
+				InvoiceDTO i = new InvoiceDTO();
+				i.setiId(rs.getInt(1));
+				i.setiConsigneeName(rs.getString(2));
+				i.setiConsigneeTel(rs.getString(3));
+				i.setiOrderDate( rs.getString(4).substring(0, 16));
+				i.setCost(rs.getInt(5));
+				invoiceDetailList.add(i);
+			}
+		} catch (Exception e) {
+			LOG.trace("InvoiceDAO selectDateTransitCom() ERROR");
+			e.printStackTrace();
+		} finally {
+			try {
+				if (pStmt != null && !pStmt.isClosed())
+					pStmt.close();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		LOG.trace("InvoiceDAO selectDateTransitCom() success");
+		return invoiceDetailList;
+	}
+	
+	
+	/* 운송 회사가 월별 주문 내역을 확인하는 화면. default = 현재 달 */
+	public List<InvoiceDTO> selectNowMonthTransitCom(int id) {
+		LOG.trace("InvoiceDAO selectNowMonthTransitCom() start");
+		PreparedStatement pStmt = null;
+		List<InvoiceDTO> invoiceDetailList = new ArrayList<>();
+		String sql = "select I.i_id, I.i_consigneeName, I.i_consigneeTel, I.i_orderDate, C.c_tCost from invoice as I" + 
+				" inner join calculate_cost as C on C.c_iTel=I.i_consigneeTel and C.c_iDate=I.i_orderDate" + 
+				" inner join trans_company as T on T.t_id=I.i_tId" + 
+				" where year(I.i_orderDate) = year(now()) and month(I.i_orderDate)=month(now()) and I.i_tId=?" + 
+				" group by I.i_consigneeTel, I.i_orderDate" + 
+				" order by I.i_orderDate desc;";
+		try {
+			pStmt = conn.prepareStatement(sql);	
+			pStmt.setInt(1, id);
+			ResultSet rs = pStmt.executeQuery();
+			while (rs.next()) {
+				InvoiceDTO i = new InvoiceDTO();
+				i.setiId(rs.getInt(1));
+				i.setiConsigneeName(rs.getString(2));
+				i.setiConsigneeTel(rs.getString(3));
+				i.setiOrderDate( rs.getString(4).substring(0, 16));
+				i.setCost(rs.getInt(5));
+				invoiceDetailList.add(i);
+			}
+		} catch (Exception e) {
+			LOG.trace("InvoiceDAO selectNowMonthTransitCom() ERROR");
+			e.printStackTrace();
+		} finally {
+			try {
+				if (pStmt != null && !pStmt.isClosed())
+					pStmt.close();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		LOG.trace("InvoiceDAO selectNowMonthTransitCom() success");
+		return invoiceDetailList;
+		
+	}
+	
+	
+	/*  운송 회사가 월별 주문 내역 화면에서 날짜 선택 시 처리하는 부분 */
+	public List<InvoiceDTO> selectMonthTransitCom(String date, int id) {
+		LOG.trace("InvoiceDAO selectMonthTransitCom() start");
+		PreparedStatement pStmt = null;
+		List<InvoiceDTO> invoiceDetailList = new ArrayList<>();
+		String sql = "select I.i_id, I.i_consigneeName, I.i_consigneeTel, I.i_orderDate, C.c_tCost from invoice as I" + 
+				" inner join calculate_cost as C on C.c_iTel=I.i_consigneeTel and C.c_iDate=I.i_orderDate" + 
+				" inner join trans_company as T on T.t_id=I.i_tId" + 
+				" where I.i_orderDate like '%" + date + "%' and I.i_tId = ?" + 
+				" group by I.i_consigneeTel, I.i_orderDate" + 
+				" order by I.i_orderDate desc;";
+		try {
+			pStmt = conn.prepareStatement(sql);
+			pStmt.setInt(1, id);
+			ResultSet rs = pStmt.executeQuery();
+			while (rs.next()) {
+				InvoiceDTO i = new InvoiceDTO();
+				i.setiId(rs.getInt(1));
+				i.setiConsigneeName(rs.getString(2));
+				i.setiConsigneeTel(rs.getString(3));
+				i.setiOrderDate( rs.getString(4).substring(0, 16));
+				i.setCost(rs.getInt(5));
+				invoiceDetailList.add(i);
+			}
+		} catch (Exception e) {
+			LOG.trace("InvoiceDAO selectMonthTransitCom() ERROR");
+			e.printStackTrace();
+		} finally {
+			try {
+				if (pStmt != null && !pStmt.isClosed())
+					pStmt.close();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		LOG.trace("InvoiceDAO selectMonthTransitCom() success");
+		return invoiceDetailList;
+	}
+	
+	
+	/* 구매처가 일별 주문 내역을 확인하는 화면. default = TODAY */
+	public List<InvoiceDTO> selectTodayOrderCom(int id) {
+		LOG.trace("InvoiceDAO selectTodayOrderCom() start");
+		PreparedStatement pStmt = null;
+		List<InvoiceDTO> invoiceDetailList = new ArrayList<>();
+		String sql = "select I.i_id, I.i_consigneeName, I.i_consigneeTel, I.i_orderDate, C.c_oCost from invoice as I" + 
+				" inner join calculate_cost as C on C.c_iTel=I.i_consigneeTel and C.c_iDate=I.i_orderDate" + 
+				" inner join product as P on I.i_pId=P.p_id" + 
+				" inner join order_company as O on O.o_id=P.p_oId" + 
+				" where date(I.i_orderDate) = date(now()) and O.o_id = ?" + 
+				" group by I.i_consigneeTel, I.i_orderDate" + 
+				" order by I.i_orderDate desc;";
+		try {
+			pStmt = conn.prepareStatement(sql);	
+			pStmt.setInt(1, id);
+			ResultSet rs = pStmt.executeQuery();
+			while (rs.next()) {
+				InvoiceDTO i = new InvoiceDTO();
+				i.setiId(rs.getInt(1));
+				i.setiConsigneeName(rs.getString(2));
+				i.setiConsigneeTel(rs.getString(3));
+				i.setiOrderDate( rs.getString(4).substring(0, 16));
+				i.setCost(rs.getInt(5));
+				invoiceDetailList.add(i);
+			}
+		} catch (Exception e) {
+			LOG.trace("InvoiceDAO selectTodayOrderCom() ERROR");
+			e.printStackTrace();
+		} finally {
+			try {
+				if (pStmt != null && !pStmt.isClosed())
+					pStmt.close();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		LOG.trace("InvoiceDAO selectTodayOrderCom() success");
+		return invoiceDetailList;
+		
+	}
+	
+	
+	/*  구매처가 일별 주문 내역 화면에서 날짜 선택 시 처리하는 부분 */
+	public List<InvoiceDTO> selectDateOrderCom(String date, int id) {
+		LOG.trace("InvoiceDAO selectDateOrderCom() start");
+		PreparedStatement pStmt = null;
+		List<InvoiceDTO> invoiceDetailList = new ArrayList<>();
+		String sql = "select I.i_id, I.i_consigneeName, I.i_consigneeTel, I.i_orderDate, C.c_oCost from invoice as I" + 
+				" inner join calculate_cost as C on C.c_iTel=I.i_consigneeTel and C.c_iDate=I.i_orderDate" + 
+				" inner join product as P on I.i_pId=P.p_id" + 
+				" inner join order_company as O on O.o_id=P.p_oId" + 
+				" where date(I.i_orderDate) = date(?) and O.o_id = ?" + 
+				" group by I.i_consigneeTel, I.i_orderDate" + 
+				" order by I.i_orderDate desc;";
+		try {
+			pStmt = conn.prepareStatement(sql);
+			pStmt.setString(1, date);
+			pStmt.setInt(2, id);
+			ResultSet rs = pStmt.executeQuery();
+			while (rs.next()) {
+				InvoiceDTO i = new InvoiceDTO();
+				i.setiId(rs.getInt(1));
+				i.setiConsigneeName(rs.getString(2));
+				i.setiConsigneeTel(rs.getString(3));
+				i.setiOrderDate( rs.getString(4).substring(0, 16));
+				i.setCost(rs.getInt(5));
+				invoiceDetailList.add(i);
+			}
+		} catch (Exception e) {
+			LOG.trace("InvoiceDAO selectDateOrderCom() ERROR");
+			e.printStackTrace();
+		} finally {
+			try {
+				if (pStmt != null && !pStmt.isClosed())
+					pStmt.close();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		LOG.trace("InvoiceDAO selectDateOrderCom() success");
+		return invoiceDetailList;
+	}
+	
+	/* 구매처가 월별 주문 내역을 확인하는 화면. default = 현재 달 */
+	public List<InvoiceDTO> selectNowMonthOrderCom(int id) {
+		LOG.trace("InvoiceDAO selectNowMonthOrderCom() start");
+		PreparedStatement pStmt = null;
+		List<InvoiceDTO> invoiceDetailList = new ArrayList<>();
+		String sql = "select I.i_id, I.i_consigneeName, I.i_consigneeTel, I.i_orderDate, C.c_oCost from invoice as I" + 
+				" inner join calculate_cost as C on C.c_iTel=I.i_consigneeTel and C.c_iDate=I.i_orderDate" + 
+				" inner join product as P on I.i_pId=P.p_id" + 
+				" inner join order_company as O on O.o_id=P.p_oId" + 
+				" where year(I.i_orderDate) = year(now()) and month(I.i_orderDate)=month(now()) and O.o_id = ?" + 
+				" group by I.i_consigneeTel, I.i_orderDate" + 
+				" order by I.i_orderDate desc;";
+		try {
+			pStmt = conn.prepareStatement(sql);	
+			pStmt.setInt(1, id);
+			ResultSet rs = pStmt.executeQuery();
+			while (rs.next()) {
+				InvoiceDTO i = new InvoiceDTO();
+				i.setiId(rs.getInt(1));
+				i.setiConsigneeName(rs.getString(2));
+				i.setiConsigneeTel(rs.getString(3));
+				i.setiOrderDate( rs.getString(4).substring(0, 16));
+				i.setCost(rs.getInt(5));
+				invoiceDetailList.add(i);
+			}
+		} catch (Exception e) {
+			LOG.trace("InvoiceDAO selectNowMonthOrderCom() ERROR");
+			e.printStackTrace();
+		} finally {
+			try {
+				if (pStmt != null && !pStmt.isClosed())
+					pStmt.close();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		LOG.trace("InvoiceDAO selectNowMonthOrderCom() success");
+		return invoiceDetailList;
+		
+	}
+	
+	/*  구매처가 월별 주문 내역 화면에서 날짜 선택 시 처리하는 부분 */
+	public List<InvoiceDTO> selectMonthOrderCom(String date, int id) {
+		LOG.trace("InvoiceDAO selectMonthOrderCom() start");
+		PreparedStatement pStmt = null;
+		List<InvoiceDTO> invoiceDetailList = new ArrayList<>();
+		String sql = "select I.i_id, I.i_consigneeName, I.i_consigneeTel, I.i_orderDate, C.c_oCost from invoice as I" + 
+				" inner join calculate_cost as C on C.c_iTel=I.i_consigneeTel and C.c_iDate=I.i_orderDate" + 
+				" inner join product as P on I.i_pId=P.p_id" + 
+				" inner join order_company as O on O.o_id=P.p_oId" + 
+				" where I.i_orderDate like '%" + date + "%' and O.o_id = ?" + 
+				" group by I.i_consigneeTel, I.i_orderDate" + 
+				" order by I.i_orderDate desc;";
+		try {
+			pStmt = conn.prepareStatement(sql);
+			pStmt.setInt(1, id);
+			ResultSet rs = pStmt.executeQuery();
+			while (rs.next()) {
+				InvoiceDTO i = new InvoiceDTO();
+				i.setiId(rs.getInt(1));
+				i.setiConsigneeName(rs.getString(2));
+				i.setiConsigneeTel(rs.getString(3));
+				i.setiOrderDate( rs.getString(4).substring(0, 16));
+				i.setCost(rs.getInt(5));
+				invoiceDetailList.add(i);
+			}
+		} catch (Exception e) {
+			LOG.trace("InvoiceDAO selectMonthOrderCom() ERROR");
+			e.printStackTrace();
+		} finally {
+			try {
+				if (pStmt != null && !pStmt.isClosed())
+					pStmt.close();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		LOG.trace("InvoiceDAO selectMonthOrderCom() success");
+		return invoiceDetailList;
 	}
 	
 	

@@ -45,7 +45,8 @@ public class LoginProc extends HttpServlet {
 		TransCompanyDTO tDto = null;
 		OrderCompanyDAO oDao = null;
 		OrderCompanyDTO oDto = null;
-		
+		ProductDAO pDao = null;
+		int alertCount = 0;
 		
 		switch(action) {
 
@@ -56,16 +57,20 @@ public class LoginProc extends HttpServlet {
 				id = request.getParameter("id");
 			password = request.getParameter("password");		
 
+			/* 관리자 로그인하는 부분 */
 			if (id.equals("admin") && password.equals("admin")) {
 				session.setAttribute("id", id);
-				response.sendRedirect("loginMain.jsp");
+				pDao = new ProductDAO();
+				alertCount = pDao.selectProductCount();
+				session.setAttribute("alertCount", alertCount);
+				response.sendRedirect("view/loginMain.jsp");
 				LOG.trace("관리자 로그인 성공");
 				break;
 			}
 			
 			if(!Pattern.matches("[0-9]*", id)) {
 				request.setAttribute("message", "아이디 오류입니다. 고객이라면 숫자만 입력해 주세요.");
-				request.setAttribute("url", "login.jsp");
+				request.setAttribute("url", "view/login.jsp");
 				rd = request.getRequestDispatcher("alertMsg.jsp");
 				rd.forward(request, response);
 				LOG.trace("구매 회사 로그인 성공 - 아이디 오류");	
@@ -90,19 +95,19 @@ public class LoginProc extends HttpServlet {
 					errorMessage = "DB 오류";
 					break;
 				default:
-					errorMessage = "";
+					errorMessage = "ERROR!";
 				}
 				
 				if (result == TransCompanyDAO.ID_PASSWORD_MATCH) {
 					tDto = tDao.searchById(Integer.parseInt(id));
 					session.setAttribute("id", id);
 					session.setAttribute("memberName", tDto.gettName());
-					response.sendRedirect("cLoginMain.jsp");
+					response.sendRedirect("view/cLoginMain.jsp");
 					LOG.trace("운송 회사 로그인 성공");
 					break;
 				} else {
 					request.setAttribute("message", errorMessage);
-					request.setAttribute("url", "login.jsp");
+					request.setAttribute("url", "view/login.jsp");
 					rd = request.getRequestDispatcher("alertMsg.jsp");
 					rd.forward(request, response);
 					LOG.trace("운송 회사 로그인 성공 - 패스워드 틀림");
@@ -128,18 +133,18 @@ public class LoginProc extends HttpServlet {
 					errorMessage = "DB 오류";
 					break;
 				default:
-					errorMessage = "";
+					errorMessage = "ERROR!";
 				}
 				if (result == OrderCompanyDAO.ID_PASSWORD_MATCH) {
 					oDto = oDao.searchById(Integer.parseInt(id));
 					session.setAttribute("id", id);
 					session.setAttribute("memberName", oDto.getoName());
-					response.sendRedirect("cLoginMain.jsp");
+					response.sendRedirect("view/cLoginMain.jsp");
 					LOG.trace("구매 회사 로그인 성공");
 					break;
 				} else {
 					request.setAttribute("message", errorMessage);
-					request.setAttribute("url", "login.jsp");
+					request.setAttribute("url", "view/login.jsp");
 					rd = request.getRequestDispatcher("alertMsg.jsp");
 					rd.forward(request, response);
 					LOG.trace("구매 회사 로그인 성공 - 패스워드 틀림");
@@ -147,7 +152,7 @@ public class LoginProc extends HttpServlet {
 			}
 			else {
 				request.setAttribute("message", "없는 아이디입니다.");
-				request.setAttribute("url", "login.jsp");
+				request.setAttribute("url", "view/login.jsp");
 				rd = request.getRequestDispatcher("alertMsg.jsp");
 				rd.forward(request, response);
 				LOG.trace("구매 회사 로그인 성공 - 아이디 없음");
@@ -157,9 +162,19 @@ public class LoginProc extends HttpServlet {
 		////////////////////////////////////////////////////////////////////////////////////
 		case "logout":			//로그아웃
 			LOG.trace("Logout start");
-			session.removeAttribute("id");
-			//session.removeAttribute("name");
-			response.sendRedirect("index.jsp");
+			if(session.getAttribute("id") != "")
+				session.removeAttribute("id");
+			if(session.getAttribute("memberName") != "")
+				session.removeAttribute("memberName");
+			if(session.getAttribute("invoiceList") != "")
+				session.removeAttribute("invoiceList");
+			if(session.getAttribute("selectMonth") != "")
+				session.removeAttribute("selectMonth");
+			if(session.getAttribute("selectDate") != "")
+				session.removeAttribute("selectDate");
+			if(session.getAttribute("alertCount") != "")
+				session.removeAttribute("alertCount");
+			response.sendRedirect("view/index.jsp");
 			LOG.trace("로그아웃 성공");
 			break;
 			
