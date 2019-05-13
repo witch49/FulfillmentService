@@ -6,6 +6,7 @@
 >
 > 현재 수정중입니다.(완성본 아님)
 >
-> DB 설계 테이블
+>
+> ** DB 설계 테이블
 > 
-![database.png](/database.png)
+> ![database.png](/database.png)
