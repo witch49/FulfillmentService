@@ -12,6 +12,7 @@ drop table order_company;
 ************************* */
 
 /* EVENT SCHEDULER 쓰기 위해서 반드시 설정해야 하는 부분. 꼭 실행하기. 여러 번 실행해도 에러 x */
+/* EVENT SCHEDULER 제대로 쓰려면 my.ini였던가 파일을 수정해야함. 아래처럼 설정할 경우 컴터 꺼지면 동작x */
 SET GLOBAL event_scheduler = ON;
 SET @@global.event_scheduler = ON;
 SET GLOBAL event_scheduler = 1;
@@ -94,8 +95,8 @@ insert into order_company(o_pwd, o_name) values('asdf', '올리브올드');
 insert into order_company(o_pwd, o_name) values('asdf', '오렌지씨');
 insert into order_company(o_pwd, o_name) values('asdf', '스위트홈');
 
-insert into product(p_name, p_img, p_price, p_amount, p_oId) values('건축의 탄생', 'book1.jpg', 10000, 20, 70001);
-insert into product(p_name, p_img, p_price, p_amount, p_oId) values('고려열전', 'book2.jpg', 11000, 19, 70001);
+insert into product(p_name, p_img, p_price, p_amount, p_oId) values('건축의 탄생', 'book1.jpg', 10000, 7, 70001);
+insert into product(p_name, p_img, p_price, p_amount, p_oId) values('고려열전', 'book2.jpg', 11000, 8, 70001);
 insert into product(p_name, p_img, p_price, p_amount, p_oId) values('대단한 스트레칭', 'book3.jpg', 9000, 17, 70001);
 insert into product(p_name, p_img, p_price, p_amount, p_oId) values('숨은 신발 찾기', 'book4.jpg', 14000, 31, 70001);
 insert into product(p_name, p_img, p_price, p_amount, p_oId) values('스페인 데이', 'book5.jpg', 13000, 25, 70001);
@@ -138,6 +139,9 @@ insert into product(p_name, p_img, p_price, p_amount, p_oId) values('정수기',
 /* 아래서부터는 eclipse에서 사용하는 쿼리문들. 실행하지 말 것  */
 /* *********************************************************** */
 
+/* ******************************************************************* */
+/* ********************     관리자 화면 부분    * ******************** */
+/* ******************************************************************* */
 
 /* csv 파일 읽어오기 - invoice 테이블에 값을 insert 하는 부분 */
 load data local infile 'D:/csv/temp3.csv'
@@ -150,11 +154,17 @@ ignore 1 rows
  set i_orderDate = timestamp(str_to_date(@var1, '%Y-%m-%d %H:%i'));
 
 
+/* 재고 화면 상세보기 클릭 시 출력되는 쿼리문 */
+select P.p_id, P.p_name, P.p_img, P.p_price, P.p_amount, P.p_oId, O.o_name from product as P
+ inner join order_company as O on O.o_id = P.p_oId
+ where P.p_id = 1;
+
+
 /* 날짜 확인해서 만족하면 && 재고 물량이 10개 이상이라면 ->
   invoice check 를 Y로 상태 바꾸기 &  product의 amount를 갱신하기 */
 update invoice as I inner join product as P on P.p_id=I.i_pId
  set I.i_check='Y', P.p_amount=P.p_amount-I.i_amount
- where P.p_amount - I.i_amount > 9
+ where P.p_amount - I.i_amount > 0
  and (
  	(I.i_orderDate <= date_sub(now(), interval 1 day) and hour(I.i_orderDate) < 18 )
  	or (
@@ -203,7 +213,6 @@ select count(*) from invoice group by i_consigneeTel, i_orderDate order by i_id;
  
 */
 
-
 /* 단순히 물품 가격만을 출력 */
 select I.i_id, P.p_name, I.i_consigneeTel, I.i_orderDate, P.p_price*I.i_amount from product as P
  inner join invoice as I on I.i_pId=P.p_id
@@ -212,8 +221,11 @@ select * from calculate_cost;
 
 
 /* 발주 화면 시 사용하는 쿼리문 */
-select P.p_id, P.p_name, P.p_price, P.p_amount, P.p_oId, O.o_name from product as P
- inner join order_company as O on P.p_oId=O.o_id;
+select I.i_id, I.i_consigneeName, I.i_orderDate, S.s_id, S.s_name, T.t_id, T.t_name, i_check from invoice as I
+ inner join shopping_mall as S on I.i_sId = S.s_id
+ inner join trans_company as T on I.i_tId = T.t_id
+ group by I.i_consigneeTel, I.i_orderDate
+ order by i_orderDate;
  
 
 /* 발주 요청 시 내일 10시가 지나면 재고 추가되도록 하기 */
@@ -236,9 +248,6 @@ select sum(c_sCost-c_oCost-c_tCost) from calculate_cost;
 select sum(c_sCost - c_oCost - c_tCost) from calculate_cost
  where year(c_iDate)=2019 and month(c_iDate) = 4;
 
-select year(c_iDate) from calculate_cost
-
-select * from calculate_cost;
 
 /* 쇼핑몰 전체 판매 내역 확인 (월단위x)*/
 select distinct C.c_iTel, C.c_iDate, C.c_sCost, I.i_sId, S.s_name from calculate_cost as C
@@ -268,6 +277,88 @@ select distinct C.c_iTel, C.c_iDate, C.c_tCost, T.t_id, T.t_name from calculate_
  inner join trans_company as T on T.t_id=I.i_tId
  order by C.c_iDate desc;
 
+/* 재고가 10개 이하이면 알림 메시지 띄워주기 */
+select count(p_id) from product where p_amount <= 10;
+
+/* ******************************************************************* */
+/* ***************    발주 회사 화면 부분   ************************** */
+/* ******************************************************************* */
+
+/* 발주 회사의 일별 주문 내역을 확인하는 부분  */
+select I.i_id, I.i_consigneeName, I.i_consigneeTel, I.i_orderDate, C.c_tCost from invoice as I
+ inner join calculate_cost as C on C.c_iTel=I.i_consigneeTel and C.c_iDate=I.i_orderDate
+ inner join trans_company as T on T.t_id=I.i_tId
+ where I.i_orderDate like '%2019-05-08%' and I.i_tId = 50001
+ group by I.i_consigneeTel, I.i_orderDate
+ order by I.i_orderDate desc;
+
+/* 발주 회사의 일별 주문 내역 화면 출력 시 default값은 오늘 날짜 */
+select I.i_id, I.i_consigneeName, I.i_consigneeTel, I.i_orderDate, C.c_tCost from invoice as I
+ inner join calculate_cost as C on C.c_iTel=I.i_consigneeTel and C.c_iDate=I.i_orderDate
+ inner join trans_company as T on T.t_id=I.i_tId
+ where date(I.i_orderDate) = date(now())-5 and I.i_tId=50001
+ group by I.i_consigneeTel, I.i_orderDate
+ order by I.i_orderDate desc;
+ 
+/* 발주 회사의 월별 주문 내역을 확인하는 부분  */
+select I.i_id, I.i_consigneeName, I.i_consigneeTel, I.i_orderDate, C.c_tCost from invoice as I
+ inner join calculate_cost as C on C.c_iTel=I.i_consigneeTel and C.c_iDate=I.i_orderDate
+ inner join trans_company as T on T.t_id=I.i_tId
+ where I.i_orderDate like '%2019-05%' and I.i_tId = 50001
+ group by I.i_consigneeTel, I.i_orderDate
+ order by I.i_orderDate desc;
+
+/* 발주 회사의 일별 주문 내역 화면 출력 시 default값은 현재 달 */
+select I.i_id, I.i_consigneeName, I.i_consigneeTel, I.i_orderDate, C.c_tCost from invoice as I
+ inner join calculate_cost as C on C.c_iTel=I.i_consigneeTel and C.c_iDate=I.i_orderDate
+ inner join trans_company as T on T.t_id=I.i_tId
+ where year(I.i_orderDate) = year(now()) and month(I.i_orderDate)=month(now()) and I.i_tId=50001
+ group by I.i_consigneeTel, I.i_orderDate
+ order by I.i_orderDate desc;
+ 
+
+/* ********************************************************************* */
+/* ***************      구매처  화면 부분     ************************** */
+/* ********************************************************************* */
+
+/* 구매처의 일별 주문 내역을 확인하는 부분  */
+select I.i_id, I.i_consigneeName, I.i_consigneeTel, I.i_orderDate, C.c_oCost from invoice as I
+ inner join calculate_cost as C on C.c_iTel=I.i_consigneeTel and C.c_iDate=I.i_orderDate
+ inner join product as P on I.i_pId=P.p_id
+ inner join order_company as O on O.o_id=P.p_oId
+ where date(I.i_orderDate) = date('2019-05-08') and O.o_id = 70001
+ group by I.i_consigneeTel, I.i_orderDate
+ order by I.i_orderDate desc;
+
+/* 구매처의 일별 주문 내역 화면 출력 시 default값은 오늘 날짜 */
+select I.i_id, I.i_consigneeName, I.i_consigneeTel, I.i_orderDate, C.c_oCost from invoice as I
+ inner join calculate_cost as C on C.c_iTel=I.i_consigneeTel and C.c_iDate=I.i_orderDate
+ inner join product as P on I.i_pId=P.p_id
+ inner join order_company as O on O.o_id=P.p_oId
+ where date(I.i_orderDate) = date(now()) and O.o_id = 70001
+ group by I.i_consigneeTel, I.i_orderDate
+ order by I.i_orderDate desc;
+ 
+/* 발주 회사의 월별 주문 내역을 확인하는 부분  */
+select I.i_id, I.i_consigneeName, I.i_consigneeTel, I.i_orderDate, C.c_oCost from invoice as I
+ inner join calculate_cost as C on C.c_iTel=I.i_consigneeTel and C.c_iDate=I.i_orderDate
+ inner join product as P on I.i_pId=P.p_id
+ inner join order_company as O on O.o_id=P.p_oId
+ where I.i_orderDate like '%2019-05%' and O.o_id = 70001
+ group by I.i_consigneeTel, I.i_orderDate
+ order by I.i_orderDate desc;
+ 
+/* 구매처의 일별 주문 내역 화면 출력 시 default값은 현재 달 */
+select I.i_id, I.i_consigneeName, I.i_consigneeTel, I.i_orderDate, C.c_oCost from invoice as I
+ inner join calculate_cost as C on C.c_iTel=I.i_consigneeTel and C.c_iDate=I.i_orderDate
+ inner join product as P on I.i_pId=P.p_id
+ inner join order_company as O on O.o_id=P.p_oId
+ where year(I.i_orderDate) = year(now()) and month(I.i_orderDate)=month(now()) and O.o_id = 70001
+ group by I.i_consigneeTel, I.i_orderDate
+ order by I.i_orderDate desc;
+
+
+/* ********************************************************************* */
 
 /* calculate_cost */
 /* 비용 계산 테이블 값 추가하는 쿼리문 */
