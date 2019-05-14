@@ -31,3 +31,11 @@
 > * Demo 영상
 >
 > <http://아직 못찍음>
+>
+> * * *
+>
+> * 같이 작업한 사람의 git주소
+>   * <http://github.com/JungHwaJung>
+>   * 
+
+
