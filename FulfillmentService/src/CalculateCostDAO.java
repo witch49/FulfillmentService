@@ -482,6 +482,7 @@ public class CalculateCostDAO {
 				" inner join shopping_mall as S on S.s_id=I.i_sId" + 
 				" where C.c_iDate like '%" + date + "%'" + 
 				" order by C.c_iDate desc;";
+		LOG.trace("date: " + date);
 		PreparedStatement pStmt = null;
 		int count = 0;
 		try {
@@ -490,7 +491,7 @@ public class CalculateCostDAO {
 			while (rs.next()) {				
 				count = rs.getInt(1);
 			}
-			rs.close();
+			//rs.close();
 		} catch (Exception e) {
 			LOG.trace("CalculateCostDAO getCountShoppingListSelectMonth() Exception ERROR");
 			e.printStackTrace();
