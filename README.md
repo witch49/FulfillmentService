@@ -36,7 +36,7 @@
 >
 > * 같이 작업한 사람의 git주소
 >
->  * <http://github.com/JungHwaJung>
->  * <http://github.com/kjh0202>
+>   * <http://github.com/JungHwaJung>
+>   * <http://github.com/kjh0202>
 
 
