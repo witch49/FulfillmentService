@@ -39,7 +39,7 @@ public class InvoiceDAO {
 				" inner join shopping_mall as S on I.i_sId = S.s_id" + 
 				" inner join trans_company as T on I.i_tId = T.t_id" + 
 				" group by I.i_consigneeTel, I.i_orderDate" + 
-				" order by i_orderDate;";
+				" order by i_orderDate desc;";
 		
 		try {
 			pStmt = conn.prepareStatement(sql);
@@ -118,9 +118,10 @@ public class InvoiceDAO {
 		PreparedStatement pStmt = null;
 		String sql = "update invoice as I inner join product as P on P.p_id=I.i_pId" + 
 				" set I.i_check='Y', P.p_amount=P.p_amount-I.i_amount" + 
-				" where P.p_amount - I.i_amount > 0" + 
+				" where P.p_amount - I.i_amount > 0 and I.i_check = 'N'" + 
 				" and (" + 
-				" 	(I.i_orderDate <= date_sub(now(), interval 1 day) and hour(I.i_orderDate) < 18 )" + 
+				" 	(date(I.i_orderDate) <= date(date_sub(now(), interval 2 day)))" + 
+				"   or (date(I.i_orderDate) = date(date_sub(now(), interval 1 day)) and hour(I.i_orderDate) < 18)" +
 				" 	or (" + 
 				" 	 ((day(I.i_orderDate) = day(now()-1) and hour(I.i_orderDate) >= 18)" + 
 				"	 or (day(I.i_orderDate) = day(now()) and hour(I.i_orderDate) < 9))" + 

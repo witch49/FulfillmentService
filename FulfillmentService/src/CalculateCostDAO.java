@@ -107,7 +107,7 @@ public class CalculateCostDAO {
 	}
 	
 	
-	/* 관리자 : 월단위 발주내역(구매처) 확인하는 부분 */
+	/* 관리자 : 월단위 발주내역(운송 회사) 확인하는 부분 */
 	public List<CalculateCostDTO> selectAllTrans() {
 		LOG.trace("CalculateCostDAO selectAllTrans() start");
 		String sql = "select distinct C.c_iTel, C.c_iDate, C.c_tCost, T.t_id, T.t_name from calculate_cost as C" + 
@@ -312,7 +312,7 @@ public class CalculateCostDAO {
 		return iList;
 	}
 	
-	/* 관리자 : 매출 총이익 가져오는 부분(xx년도 1월) */
+	/* 관리자 : 매출 총이익 가져오는 부분(xx년도 xx월) */
 	public int totalSalesChart (int year, int month) {
 		LOG.trace("CalculateCostDAO totalSalesChart() start");	
 		String sql = "select sum(c_sCost - c_oCost - c_tCost) from calculate_cost" + 
@@ -341,6 +341,8 @@ public class CalculateCostDAO {
 		return temp;
 	}
 	
+	/* ***************************************************************************** */
+	/* ***************************************************************************** */
 	
 	/* 관리자 : 월단위 판매내역(쇼핑몰) 페이지 넘기는 부분 */
 	public List<CalculateCostDTO> selectShoppingPage(int page) {
@@ -392,9 +394,9 @@ public class CalculateCostDAO {
 	}
  
 	/* 관리자 : 월단위 판매내역(쇼핑몰) 페이지 카운트 세는 부분 */
-	public int getCount() {
-		LOG.trace("CalculateCostDAO getCount() start");	
-		String query = "select count(*) from calculate_cost as c" + 
+	public int getShoppingCount() {
+		LOG.trace("CalculateCostDAO getShoppingCount() start");	
+		String query = "select count(distinct c.c_iTel, c.c_iDate) from calculate_cost as c" + 
 				" inner join invoice as I on I.i_consigneeTel=C.c_iTel and I.i_orderDate=C.c_iDate" + 
 				" inner join shopping_mall as S on S.s_id=I.i_sId;";
 		PreparedStatement pStmt = null;
@@ -407,7 +409,7 @@ public class CalculateCostDAO {
 			}
 			rs.close();
 		} catch (Exception e) {
-			LOG.trace("CalculateCostDAO getCount() Exception ERROR");
+			LOG.trace("CalculateCostDAO getShoppingCount() Exception ERROR");
 			e.printStackTrace();
 		} finally {
 			try {
@@ -417,9 +419,432 @@ public class CalculateCostDAO {
 				se.printStackTrace();
 			}
 		}
-		LOG.trace("CalculateCostDAO getCount() success");
+		LOG.trace("CalculateCostDAO getShoppingCount() success");
+		return count;
+	}
+	
+	/* 관리자 : 월단위 판매내역(쇼핑몰) 페이지 넘기는 부분 (선택한 월만) */
+	public List<CalculateCostDTO> selectShoppingPageSelectMonth(String date, int page) {
+		LOG.trace("CalculateCostDAO selectShoppingPageSelectMonth() start");	
+		int offset = 0;
+		String query = null;
+		if (page == 0) {	// page가 0이면 모든 데이터를 보냄
+			query = "select distinct C.c_iTel, C.c_iDate, C.c_sCost, I.i_sId, S.s_name from calculate_cost as C" + 
+					" inner join invoice as I on I.i_consigneeTel=C.c_iTel and I.i_orderDate=C.c_iDate" + 
+					" inner join shopping_mall as S on S.s_id=I.i_sId" + 
+					" where C.c_iDate like '%" + date + "%'" + 
+					" order by C.c_iDate desc;";
+		} else {			// page가 0이 아니면 해당 페이지 데이터만 보냄
+			query = "select distinct C.c_iTel, C.c_iDate, C.c_sCost, I.i_sId, S.s_name from calculate_cost as C" + 
+					" inner join invoice as I on I.i_consigneeTel=C.c_iTel and I.i_orderDate=C.c_iDate" + 
+					" inner join shopping_mall as S on S.s_id=I.i_sId" + 
+					" where C.c_iDate like '%" + date + "%'" + 
+					" order by C.c_iDate desc limit ?, 10;";
+			offset = (page - 1) * 10;
+		}
+		PreparedStatement pStmt = null;
+		List<CalculateCostDTO> ipList = new ArrayList<CalculateCostDTO>();
+		try {
+			pStmt = conn.prepareStatement(query);
+			if (page != 0)
+				pStmt.setInt(1, offset);
+			ResultSet rs = pStmt.executeQuery();
+			while (rs.next()) {	
+				CalculateCostDTO c = new CalculateCostDTO();
+				c.setC_iTel(rs.getString(1));
+				c.setC_iDate(rs.getString(2).substring(0, 16));
+				c.setC_sCost(rs.getInt(3));
+				c.setC_comId(rs.getInt(4));
+				c.setC_comName(rs.getString(5));
+				ipList.add(c);
+			}
+			rs.close();
+		} catch (Exception e) {
+			LOG.trace("CalculateCostDAO selectShoppingPageSelectMonth() Exception ERROR");
+			e.printStackTrace();
+		} finally {
+			try {
+				if (pStmt != null && !pStmt.isClosed()) 
+					pStmt.close();
+			} catch (SQLException se) {
+				se.printStackTrace();
+			}
+		}
+		LOG.trace("CalculateCostDAO selectShoppingPageSelectMonth() success");
+		return ipList;
+	}
+	
+	/* 관리자 : 월단위 판매내역(쇼핑몰) 페이지 카운트 세는 부분 (선택한 월만) */
+	public int getCountShoppingListSelectMonth(String date) {
+		LOG.trace("CalculateCostDAO getCountShoppingListSelectMonth() start");	
+		String query = "select count(distinct C.c_iTel, C.c_iDate) from calculate_cost as C" + 
+				" inner join invoice as I on I.i_consigneeTel=C.c_iTel and I.i_orderDate=C.c_iDate" + 
+				" inner join shopping_mall as S on S.s_id=I.i_sId" + 
+				" where C.c_iDate like '%" + date + "%'" + 
+				" order by C.c_iDate desc;";
+		PreparedStatement pStmt = null;
+		int count = 0;
+		try {
+			pStmt = conn.prepareStatement(query);
+			ResultSet rs = pStmt.executeQuery();
+			while (rs.next()) {				
+				count = rs.getInt(1);
+			}
+			rs.close();
+		} catch (Exception e) {
+			LOG.trace("CalculateCostDAO getCountShoppingListSelectMonth() Exception ERROR");
+			e.printStackTrace();
+		} finally {
+			try {
+				if (pStmt != null && !pStmt.isClosed()) 
+					pStmt.close();
+			} catch (SQLException se) {
+				se.printStackTrace();
+			}
+		}
+		LOG.trace("CalculateCostDAO getCountShoppingListSelectMonth() success");
 		return count;
 	}
 	
 
+	/* ***************************************************************************** */
+	/* ***************************************************************************** */
+	
+	
+	/* 관리자 : 월단위 구매내역(구매처) 페이지 넘기는 부분 */
+	public List<CalculateCostDTO> selectOrderPage(int page) {
+		LOG.trace("CalculateCostDAO selectOrderPage() start");	
+		int offset = 0;
+		String query = null;
+		if (page == 0) {	// page가 0이면 모든 데이터를 보냄
+			query = "select distinct C.c_iTel, C.c_iDate, C.c_oCost, O.o_id, O.o_name from calculate_cost as C" + 
+					" inner join invoice as I on I.i_consigneeTel=C.c_iTel and I.i_orderDate=C.c_iDate" + 
+					" inner join product as P on P.p_id=I.i_pId" + 
+					" inner join order_company as O on O.o_id=P.p_oId" + 
+					" order by C.c_iDate desc;";
+		} else {			// page가 0이 아니면 해당 페이지 데이터만 보냄
+			query = "select distinct C.c_iTel, C.c_iDate, C.c_oCost, O.o_id, O.o_name from calculate_cost as C" + 
+					" inner join invoice as I on I.i_consigneeTel=C.c_iTel and I.i_orderDate=C.c_iDate" + 
+					" inner join product as P on P.p_id=I.i_pId" + 
+					" inner join order_company as O on O.o_id=P.p_oId" + 
+					" order by C.c_iDate desc limit ?, 10;";
+			offset = (page - 1) * 10;
+		}
+		PreparedStatement pStmt = null;
+		List<CalculateCostDTO> opList = new ArrayList<CalculateCostDTO>();
+		try {
+			pStmt = conn.prepareStatement(query);
+			if (page != 0)
+				pStmt.setInt(1, offset);
+			ResultSet rs = pStmt.executeQuery();
+			while (rs.next()) {	
+				CalculateCostDTO c = new CalculateCostDTO();
+				c.setC_iTel(rs.getString(1));
+				c.setC_iDate(rs.getString(2).substring(0, 16));
+				c.setC_oCost(rs.getInt(3));
+				c.setC_comId(rs.getInt(4));
+				c.setC_comName(rs.getString(5));
+				opList.add(c);
+			}
+			rs.close();
+		} catch (Exception e) {
+			LOG.trace("CalculateCostDAO selectOrderPage() Exception ERROR");
+			e.printStackTrace();
+		} finally {
+			try {
+				if (pStmt != null && !pStmt.isClosed()) 
+					pStmt.close();
+			} catch (SQLException se) {
+				se.printStackTrace();
+			}
+		}
+		LOG.trace("CalculateCostDAO selectOrderPage() success");
+		return opList;
+	}
+
+	/* 관리자 : 월단위 구매내역(구매처) 페이지 카운트 세는 부분 */
+	public int getOrderCount() {
+		LOG.trace("CalculateCostDAO getOrderCount() start");	
+		String query = "select count(distinct C.c_iTel, C.c_iDate) from calculate_cost as C"+ 
+				" inner join invoice as I on I.i_consigneeTel=C.c_iTel and I.i_orderDate=C.c_iDate"+ 
+				" inner join product as P on P.p_id=I.i_pId"+ 
+				" inner join order_company as O on O.o_id=P.p_oId;";
+		PreparedStatement pStmt = null;
+		int count = 0;
+		try {
+			pStmt = conn.prepareStatement(query);
+			ResultSet rs = pStmt.executeQuery();
+			while (rs.next()) {				
+				count = rs.getInt(1);
+			}
+			rs.close();
+		} catch (Exception e) {
+			LOG.trace("CalculateCostDAO getOrderCount() Exception ERROR");
+			e.printStackTrace();
+		} finally {
+			try {
+				if (pStmt != null && !pStmt.isClosed()) 
+					pStmt.close();
+			} catch (SQLException se) {
+				se.printStackTrace();
+			}
+		}
+		LOG.trace("CalculateCostDAO getOrderCount() success");
+		return count;
+	}
+	
+	
+	/* 관리자 : 월단위 구매내역(쇼핑몰) 페이지 넘기는 부분 (선택한 월만) */
+	public List<CalculateCostDTO> selectOrderPageSelectMonth(String date, int page) {
+		LOG.trace("CalculateCostDAO selectOrderPageSelectMonth() start");	
+		int offset = 0;
+		String query = null;
+		if (page == 0) {	// page가 0이면 모든 데이터를 보냄
+			query = "select distinct C.c_iTel, C.c_iDate, C.c_oCost, O.o_id, O.o_name from calculate_cost as C" + 
+					" inner join invoice as I on I.i_consigneeTel=C.c_iTel and I.i_orderDate=C.c_iDate" + 
+					" inner join product as P on P.p_id=I.i_pId" + 
+					" inner join order_company as O on O.o_id=P.p_oId" + 
+					" where C.c_iDate like '%" + date + "%'" + 
+					" order by C.c_iDate desc;";
+		} else {			// page가 0이 아니면 해당 페이지 데이터만 보냄
+			query = "select distinct C.c_iTel, C.c_iDate, C.c_oCost, O.o_id, O.o_name from calculate_cost as C" + 
+					" inner join invoice as I on I.i_consigneeTel=C.c_iTel and I.i_orderDate=C.c_iDate" + 
+					" inner join product as P on P.p_id=I.i_pId" + 
+					" inner join order_company as O on O.o_id=P.p_oId" + 
+					" where C.c_iDate like '%" + date + "%'" + 
+					" order by C.c_iDate desc limit ?, 10;";
+			offset = (page - 1) * 10;
+		}
+		PreparedStatement pStmt = null;
+		List<CalculateCostDTO> ipList = new ArrayList<CalculateCostDTO>();
+		try {
+			pStmt = conn.prepareStatement(query);
+			if (page != 0)
+				pStmt.setInt(1, offset);
+			ResultSet rs = pStmt.executeQuery();
+			while (rs.next()) {	
+				CalculateCostDTO c = new CalculateCostDTO();
+				c.setC_iTel(rs.getString(1));
+				c.setC_iDate(rs.getString(2).substring(0, 16));
+				c.setC_oCost(rs.getInt(3));
+				c.setC_comId(rs.getInt(4));
+				c.setC_comName(rs.getString(5));
+				ipList.add(c);
+			}
+			rs.close();
+		} catch (Exception e) {
+			LOG.trace("CalculateCostDAO selectOrderPageSelectMonth() Exception ERROR");
+			e.printStackTrace();
+		} finally {
+			try {
+				if (pStmt != null && !pStmt.isClosed()) 
+					pStmt.close();
+			} catch (SQLException se) {
+				se.printStackTrace();
+			}
+		}
+		LOG.trace("CalculateCostDAO selectOrderPageSelectMonth() success");
+		return ipList;
+	}
+	
+	/* 관리자 : 월단위 구매내역(쇼핑몰) 페이지 카운트 세는 부분 (선택한 월만) */
+	public int getCountOrderListSelectMonth(String date) {
+		LOG.trace("CalculateCostDAO getCountOrderListSelectMonth() start");	
+		String query = "select count(distinct C.c_iTel, C.c_iDate) from calculate_cost as C" + 
+				" inner join invoice as I on I.i_consigneeTel=C.c_iTel and I.i_orderDate=C.c_iDate" + 
+				" inner join product as P on P.p_id=I.i_pId" + 
+				" inner join order_company as O on O.o_id=P.p_oId" + 
+				" where C.c_iDate like '%" + date + "%'" + 
+				" order by C.c_iDate desc;";
+		PreparedStatement pStmt = null;
+		int count = 0;
+		try {
+			pStmt = conn.prepareStatement(query);
+			ResultSet rs = pStmt.executeQuery();
+			while (rs.next()) {				
+				count = rs.getInt(1);
+			}
+			rs.close();
+		} catch (Exception e) {
+			LOG.trace("CalculateCostDAO getCountOrderListSelectMonth() Exception ERROR");
+			e.printStackTrace();
+		} finally {
+			try {
+				if (pStmt != null && !pStmt.isClosed()) 
+					pStmt.close();
+			} catch (SQLException se) {
+				se.printStackTrace();
+			}
+		}
+		LOG.trace("CalculateCostDAO getCountOrderListSelectMonth() success");
+		return count;
+	}
+	
+	
+	/* ***************************************************************************** */
+	/* ***************************************************************************** */
+	
+	
+	/* 관리자 : 월단위 발주내역(운송 회사) 페이지 넘기는 부분 */
+	public List<CalculateCostDTO> selectTransitPage(int page) {
+		LOG.trace("CalculateCostDAO selectTransPage() start");	
+		int offset = 0;
+		String query = null;
+		if (page == 0) {	// page가 0이면 모든 데이터를 보냄
+			query = "select distinct C.c_iTel, C.c_iDate, C.c_tCost, T.t_id, T.t_name from calculate_cost as C" + 
+					" inner join invoice as I on I.i_consigneeTel=C.c_iTel and I.i_orderDate=C.c_iDate" + 
+					" inner join trans_company as T on T.t_id=I.i_tId" + 
+					" order by C.c_iDate desc;";
+		} else {			// page가 0이 아니면 해당 페이지 데이터만 보냄
+			query = "select distinct C.c_iTel, C.c_iDate, C.c_tCost, T.t_id, T.t_name from calculate_cost as C" + 
+					" inner join invoice as I on I.i_consigneeTel=C.c_iTel and I.i_orderDate=C.c_iDate" + 
+					" inner join trans_company as T on T.t_id=I.i_tId" + 
+					" order by C.c_iDate desc limit ?, 10;";
+			offset = (page - 1) * 10;
+		}
+		PreparedStatement pStmt = null;
+		List<CalculateCostDTO> tpList = new ArrayList<CalculateCostDTO>();
+		try {
+			pStmt = conn.prepareStatement(query);
+			if (page != 0)
+				pStmt.setInt(1, offset);
+			ResultSet rs = pStmt.executeQuery();
+			while (rs.next()) {	
+				CalculateCostDTO c = new CalculateCostDTO();
+				c.setC_iTel(rs.getString(1));
+				c.setC_iDate(rs.getString(2).substring(0, 16));
+				c.setC_tCost(rs.getInt(3));
+				c.setC_comId(rs.getInt(4));
+				c.setC_comName(rs.getString(5));
+				tpList.add(c);
+			}
+			rs.close();
+		} catch (Exception e) {
+			LOG.trace("CalculateCostDAO selectTransPage() Exception ERROR");
+			e.printStackTrace();
+		} finally {
+			try {
+				if (pStmt != null && !pStmt.isClosed()) 
+					pStmt.close();
+			} catch (SQLException se) {
+				se.printStackTrace();
+			}
+		}
+		LOG.trace("CalculateCostDAO selectTransPage() success");
+		return tpList;
+	}
+
+	/* 관리자 : 월단위 발주내역(운송 회사) 페이지 카운트 세는 부분 */
+	public int getTransitCount() {
+		LOG.trace("CalculateCostDAO getOrderCount() start");	
+		String query = "select count(distinct C.c_iTel, C.c_iDate) from calculate_cost as C" + 
+				" inner join invoice as I on I.i_consigneeTel=C.c_iTel and I.i_orderDate=C.c_iDate" + 
+				" inner join trans_company as T on T.t_id=I.i_tId;";
+		PreparedStatement pStmt = null;
+		int count = 0;
+		try {
+			pStmt = conn.prepareStatement(query);
+			ResultSet rs = pStmt.executeQuery();
+			while (rs.next()) {				
+				count = rs.getInt(1);
+			}
+			rs.close();
+		} catch (Exception e) {
+			LOG.trace("CalculateCostDAO getTransCount() Exception ERROR");
+			e.printStackTrace();
+		} finally {
+			try {
+				if (pStmt != null && !pStmt.isClosed()) 
+					pStmt.close();
+			} catch (SQLException se) {
+				se.printStackTrace();
+			}
+		}
+		LOG.trace("CalculateCostDAO getTransCount() success");
+		return count;
+	}
+	
+	/* 관리자 : 월단위 발주내역(운송 회사) 페이지 넘기는 부분 (선택한 월만) */
+	public List<CalculateCostDTO> selectTransitPageSelectMonth(String date, int page) {
+		LOG.trace("CalculateCostDAO selectTransitPageSelectMonth() start");	
+		int offset = 0;
+		String query = null;
+		if (page == 0) {	// page가 0이면 모든 데이터를 보냄
+			query = "select distinct C.c_iTel, C.c_iDate, C.c_tCost, T.t_id, T.t_name from calculate_cost as C" + 
+					" inner join invoice as I on I.i_consigneeTel=C.c_iTel and I.i_orderDate=C.c_iDate" + 
+					" inner join trans_company as T on T.t_id=I.i_tId" + 
+					" where C.c_iDate like '%" + date + "%'" + 
+					" order by C.c_iDate desc;";
+		} else {			// page가 0이 아니면 해당 페이지 데이터만 보냄
+			query = "select distinct C.c_iTel, C.c_iDate, C.c_tCost, T.t_id, T.t_name from calculate_cost as C" + 
+					" inner join invoice as I on I.i_consigneeTel=C.c_iTel and I.i_orderDate=C.c_iDate" + 
+					" inner join trans_company as T on T.t_id=I.i_tId" + 
+					" where C.c_iDate like '%" + date + "%'" + 
+					" order by C.c_iDate desc limit ?, 10;";
+			offset = (page - 1) * 10;
+		}
+		PreparedStatement pStmt = null;
+		List<CalculateCostDTO> ipList = new ArrayList<CalculateCostDTO>();
+		try {
+			pStmt = conn.prepareStatement(query);
+			if (page != 0)
+				pStmt.setInt(1, offset);
+			ResultSet rs = pStmt.executeQuery();
+			while (rs.next()) {	
+				CalculateCostDTO c = new CalculateCostDTO();
+				c.setC_iTel(rs.getString(1));
+				c.setC_iDate(rs.getString(2).substring(0, 16));
+				c.setC_tCost(rs.getInt(3));
+				c.setC_comId(rs.getInt(4));
+				c.setC_comName(rs.getString(5));
+				ipList.add(c);
+			}
+			rs.close();
+		} catch (Exception e) {
+			LOG.trace("CalculateCostDAO selectTransitPageSelectMonth() Exception ERROR");
+			e.printStackTrace();
+		} finally {
+			try {
+				if (pStmt != null && !pStmt.isClosed()) 
+					pStmt.close();
+			} catch (SQLException se) {
+				se.printStackTrace();
+			}
+		}
+		LOG.trace("CalculateCostDAO selectTransitPageSelectMonth() success");
+		return ipList;
+	}
+	
+	/* 관리자 : 월단위 발주내역(운송 회사) 페이지 카운트 세는 부분 (선택한 월만) */
+	public int getCountTransitListSelectMonth(String date) {
+		LOG.trace("CalculateCostDAO getCountTransitListSelectMonth() start");	
+		String query = "select count(distinct C.c_iTel, C.c_iDate) from calculate_cost as C" + 
+				" inner join invoice as I on I.i_consigneeTel=C.c_iTel and I.i_orderDate=C.c_iDate" + 
+				" inner join trans_company as T on T.t_id=I.i_tId" + 
+				" where C.c_iDate like '%" + date + "%'" + 
+				" order by C.c_iDate desc;";
+		PreparedStatement pStmt = null;
+		int count = 0;
+		try {
+			pStmt = conn.prepareStatement(query);
+			ResultSet rs = pStmt.executeQuery();
+			while (rs.next()) {				
+				count = rs.getInt(1);
+			}
+			rs.close();
+		} catch (Exception e) {
+			LOG.trace("CalculateCostDAO getCountTransitListSelectMonth() Exception ERROR");
+			e.printStackTrace();
+		} finally {
+			try {
+				if (pStmt != null && !pStmt.isClosed()) 
+					pStmt.close();
+			} catch (SQLException se) {
+				se.printStackTrace();
+			}
+		}
+		LOG.trace("CalculateCostDAO getCountTransitListSelectMonth() success");
+		return count;
+	}
+	
 }

@@ -19,8 +19,15 @@
 	
 			<div class="col-sm-9 col-md-10  main">
 			 	<h3>발주 요청</h3>
-				<hr><br>
-	
+				<hr>
+				<strong>&lt; 발주 요청중인 것들 &gt;</strong><br>
+				<%-- var="ea" items="${eListAmount}" --%>
+				<c:set var="eListId" value="${requestScope.eListId}"/>
+				<c:set var="eListAmount" value="${requestScope.eListAmount}"/>
+				<c:forEach var="ei" items="${eListId}" varStatus="status">
+					물품id: ${ei.event_pId}&nbsp;&nbsp;요청개수: ${eListAmount[status.index].event_pAmount}개<br>
+				</c:forEach>
+				<br>
 			 	<div class="col-ms-11" >
 				 	<table class="table table-hover">
 		  				<tr>

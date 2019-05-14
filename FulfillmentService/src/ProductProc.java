@@ -1,5 +1,6 @@
 import java.io.IOException;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -39,6 +40,7 @@ public class ProductProc extends HttpServlet {
 		ProductDTO pDto = null;
 		List<ProductDTO> pList = null, pListBook = null, pListAnimalGoods = null, pListCosmetic = null, pListFruit = null, pListHomeAppliances = null;
 		List<ProductDTO> pListItemDetail = null;
+		List<EventDTO> eListId = null, eListAmount = null;
 		HttpSession session = request.getSession();
 		RequestDispatcher rd = null;
 		String imgName = "", eventName = "";
@@ -89,7 +91,13 @@ public class ProductProc extends HttpServlet {
 			LOG.trace("requestItems 시작");
 			pDao = new ProductDAO();
 			pList = pDao.selectAllItems();
+			eListId = pDao.selectEventpId();
+			eListAmount = pDao.selectEventpAmount();
+			
 			request.setAttribute("pList", pList);
+			request.setAttribute("eListId", eListId);
+			request.setAttribute("eListAmount", eListAmount);
+			
 			rd = request.getRequestDispatcher("view/orderRequest.jsp");
 			rd.forward(request, response);
 			LOG.trace("requestItems 성공");
@@ -119,11 +127,19 @@ public class ProductProc extends HttpServlet {
 			if (!request.getParameter("pId").equals(""))
 				pId = Integer.parseInt(request.getParameter("pId").trim());
 
-			orderAmount = Integer.parseInt(request.getParameter("orderAmount"));		
+			String temp = request.getParameter("orderAmount");
+			if(!Pattern.matches("^[0-9]*$", temp) || temp.equals("")) {
+				request.setAttribute("message", "숫자를 입력하세요.");
+				request.setAttribute("url", "ProductProc?action=requestItemsDetail&pId=" + pId);
+				rd = request.getRequestDispatcher("alertMsg.jsp");
+				rd.forward(request, response);
+				LOG.trace("발주 확인 버튼 - 입력 오류");
+				break;
+			}
 			
+			orderAmount = Integer.parseInt(request.getParameter("orderAmount"));
 			pDao = new ProductDAO();
 			pDao.SendOrderRequest(orderAmount, pId);
-			
 			
 			String message = "발주 요청 완료. 내일 오전 10시에 입고됩니다.";
 			request.setAttribute("message", message);

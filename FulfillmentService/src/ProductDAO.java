@@ -226,7 +226,8 @@ public class ProductDAO {
 	public List<ProductDTO> selectAllItems() {
 		LOG.trace("ProductDAO selectAllItems() start");
 		String sql = "select P.p_id, P.p_name, P.p_price, P.p_amount, P.p_oId, O.o_name from product as P" + 
-				" inner join order_company as O on P.p_oId=O.o_id;";
+				" inner join order_company as O on P.p_oId=O.o_id" +
+				" order by P.p_amount;";
 		PreparedStatement pStmt = null;
 		List<ProductDTO> pList = new ArrayList<ProductDTO>();
 
@@ -345,7 +346,7 @@ public class ProductDAO {
 		
 		StringBuffer temp = new StringBuffer();
 		Random rnd = new Random();
-		for (int i = 0; i < 20; i++) {
+		for (int i = 0; i < 20; i++) {			
 			int rIndex = rnd.nextInt(3);
 			switch (rIndex) {
 			case 0: // a-z
@@ -358,6 +359,7 @@ public class ProductDAO {
 				temp.append((rnd.nextInt(10)));
 				break;
 			}
+			
 		}
 		
 		String sql = "CREATE EVENT " + temp.toString() + 
@@ -413,6 +415,70 @@ public class ProductDAO {
 		LOG.trace("ProductDAO selectProductCount() success");
 		LOG.trace("rowCount : " + rowCount);
 		return rowCount;
+	}
+	
+	/* 관리자 - 발주 화면에서 현재 발주중인 것이 뭔지 pId를 받아오는 부분 */
+	public List<EventDTO> selectEventpId() {
+		LOG.trace("ProductDAO selectEventpId() start");
+		String sql = "select substring_index(replace(replace(EVENT_DEFINITION, ' where p_id = ', ','),"
+				+ " 'update product set p_amount = p_amount + ', ''), ',', -1) from INFORMATION_SCHEMA.EVENTS order by CREATED;";
+		PreparedStatement pStmt = null;
+		List<EventDTO> eList = new ArrayList<>();
+
+		try {
+			pStmt = conn.prepareStatement(sql);
+			ResultSet rs = pStmt.executeQuery();
+
+			while (rs.next()) {
+				EventDTO e = new EventDTO();
+				e.setEvent_pId(rs.getInt(1));
+				eList.add(e);
+			}
+		} catch (Exception e) {
+			LOG.trace("ProductDAO selectEventpId( ERROR");
+			e.printStackTrace();
+		} finally {
+			try {
+				if (pStmt != null && !pStmt.isClosed())
+					pStmt.close();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		LOG.trace("ProductDAO selectEventpId() success");
+		return eList;
+	}
+	
+	/* 관리자 - 발주 화면에서 현재 발주중인 것의 개수를 받아오는 부분 */
+	public List<EventDTO> selectEventpAmount() {
+		LOG.trace("ProductDAO selectEventpAmount() start");
+		String sql = "select substring_index(replace(replace(EVENT_DEFINITION, ' where p_id = ', ','),"
+				+ " 'update product set p_amount = p_amount + ', ''), ',', 1) from INFORMATION_SCHEMA.EVENTS order by CREATED;";
+		PreparedStatement pStmt = null;
+		List<EventDTO> eList = new ArrayList<>();
+
+		try {
+			pStmt = conn.prepareStatement(sql);
+			ResultSet rs = pStmt.executeQuery();
+
+			while (rs.next()) {
+				EventDTO e = new EventDTO();
+				e.setEvent_pAmount(rs.getInt(1));
+				eList.add(e);
+			}
+		} catch (Exception e) {
+			LOG.trace("ProductDAO selectEventpAmount( ERROR");
+			e.printStackTrace();
+		} finally {
+			try {
+				if (pStmt != null && !pStmt.isClosed())
+					pStmt.close();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		LOG.trace("ProductDAO selectEventpAmount() success");
+		return eList;
 	}
 	
 }

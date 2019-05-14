@@ -23,7 +23,7 @@
 		 		<h3>월단위 운송 내역(운송 회사)</h3>
 			</div>
 		 	<div class="col-md-5">
-				<form action="/FulfillmentService/CalculateCostProc?action=pickMonthForTransit" class="form-horizontal" method="post" name="form">
+				<form action="/FulfillmentService/CalculateCostProc?action=pickMonthForTransitList&page=1" class="form-horizontal" method="post" name="form">
 					<label for="selectMonth">
 					Date : 
 					</label>&nbsp;
@@ -39,7 +39,7 @@
 		 	<div class="col-xs-11" >
 		 	<table class="table table-hover">
   				<tr><th>운송 회사 id</th><th>운송 회사 이름</th><th>운송 회사 대금 지불 금액(원)</th><th>주문자 전화번호</th><th>주문날짜</th></tr>
-  				<c:set var="ccList" value="${requestScope.calList}"/>
+  				<c:set var="ccList" value="${requestScope.tpList}"/>
 				<c:forEach var="cc" items="${ccList}">
   					<tr>
   						<td>${cc.c_comId}</td>
@@ -50,12 +50,17 @@
   					</tr>
   				</c:forEach>
 			</table>
-			<hr><hr>
-		 	</div>
+			<div class="col-md-6 col-md-offset-5">
+				<c:set var="pageList" value="${requestScope.pageList}"/>
+				<c:forEach var="pageNo" items="${pageList}">
+					${pageNo}
+				</c:forEach>
+			</div>
 			
+		 	</div>
  	</div>
  </div>
- 
+ <hr><hr>
 <jsp:include page="../common/footer.jsp" />
 
 <!-- ==================================================================== -->

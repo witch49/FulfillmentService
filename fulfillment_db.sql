@@ -11,12 +11,17 @@ drop table product;
 drop table order_company;
 ************************* */
 
-/* EVENT SCHEDULER 쓰기 위해서 반드시 설정해야 하는 부분. 꼭 실행하기. 여러 번 실행해도 에러 x */
-/* EVENT SCHEDULER 제대로 쓰려면 my.ini였던가 파일을 수정해야함. 아래처럼 설정할 경우 컴터 꺼지면 동작x */
+/* EVENT SCHEDULER 쓰기 위해서 반드시 설정해야 하는 부분. 여러 번 실행해도 에러 x */
 SET GLOBAL event_scheduler = ON;
 SET @@global.event_scheduler = ON;
 SET GLOBAL event_scheduler = 1;
 SET @@global.event_scheduler = 1;
+/* 서버 재기동해도 돌아가도록 하려면 아래 경로의 파일에 추가 */
+/* C:\ProgramData\MySQL\MySQL Server 5.7\my.ini  에 아래 문구 추가 */
+/* 
+[mysqld]
+event_scheduler = ON
+*/
 
 
 /* table 생성 */
@@ -132,7 +137,12 @@ insert into product(p_name, p_img, p_price, p_amount, p_oId) values('진공청�
 insert into product(p_name, p_img, p_price, p_amount, p_oId) values('정수기', 'homeappliances_waterpurifier.jpg', 32000, 30, 70005);
 
 
+select * from product;
+select * from shopping_mall;
 
+select P.p_id, P.p_name, P.p_price, P.p_amount, P.p_oId, O.o_name from product as P
+ inner join order_company as O on P.p_oId=O.o_id
+ order by P.p_amount;
 
 
 /* *********************************************************** */
@@ -160,13 +170,14 @@ select P.p_id, P.p_name, P.p_img, P.p_price, P.p_amount, P.p_oId, O.o_name from 
  where P.p_id = 1;
 
 
-/* 날짜 확인해서 만족하면 && 재고 물량이 10개 이상이라면 ->
+/* 날짜 확인해서 만족하면 && 재고 물량이 1개 이상이라면 ->
   invoice check 를 Y로 상태 바꾸기 &  product의 amount를 갱신하기 */
 update invoice as I inner join product as P on P.p_id=I.i_pId
  set I.i_check='Y', P.p_amount=P.p_amount-I.i_amount
- where P.p_amount - I.i_amount > 0
+ where P.p_amount - I.i_amount > 1 and I.i_check='N'
  and (
- 	(I.i_orderDate <= date_sub(now(), interval 1 day) and hour(I.i_orderDate) < 18 )
+ 	(date(I.i_orderDate) <= date(date_sub(now(), interval 2 day)))
+ 	or ( date(I.i_orderDate) = date(date_sub(now(), interval 1 day)) and hour(I.i_orderDate) < 18 )
  	or (
  	/*1-기록된 시간이 now-1일 && 오후 6시 이후 이거나
  	2-기록된 시간이 now일 && 오전9시  이전 이고
@@ -184,7 +195,7 @@ update invoice as I inner join product as P on P.p_id=I.i_pId
 	 and (hour(now()) >= 18)
 	)
 );
-
+select * from invoice where i_check='N'
 /* update 한 이후에 Y인 부분을 cost 테이블에 추가하도록 하기 
  * cost 테이블에 값들 insert 하는 부분 
   ================================================
@@ -237,10 +248,18 @@ CREATE EVENT AV120oPOJSm40xN50wYV
  at (CURDATE() + INTERVAL 0 SECOND + INTERVAL 1 DAY + INTERVAL 10 HOUR)
  DO update product set p_amount = p_amount + 1 where p_id=1;
 
-select * from product;
 drop event orderRequest_event_01;
 
-show events from fulfillment;
+show events from fulfillment like '%0%';
+show events from fulfillment where db='fulfillment';
+show create event 47Gc3HSvRA8747uwY4jm;
+select EVENT_NAME, EVENT_DEFINITION, EXECUTE_AT from INFORMATION_SCHEMA.EVENTS;
+select * from INFORMATION_SCHEMA.EVENTS
+select replace(replace(EVENT_DEFINITION, ' where p_id = ', ','), 'update product set p_amount = p_amount + ', '') from INFORMATION_SCHEMA.EVENTS;
+select substring_index(replace(replace(EVENT_DEFINITION, ' where p_id = ', ','), 'update product set p_amount = p_amount + ', ''), ',', 1) from INFORMATION_SCHEMA.EVENTS order by CREATED;
+select substring_index(replace(replace(EVENT_DEFINITION, ' where p_id = ', ','), 'update product set p_amount = p_amount + ', ''), ',', -1) from INFORMATION_SCHEMA.EVENTS order by CREATED;
+select events from fulfillment;
+
 
 /* 매출 총 이익 출력하기 */
 select sum(c_sCost-c_oCost-c_tCost) from calculate_cost;
@@ -249,11 +268,19 @@ select sum(c_sCost - c_oCost - c_tCost) from calculate_cost
  where year(c_iDate)=2019 and month(c_iDate) = 4;
 
 
+/* ********************************************************************* */
+
 /* 쇼핑몰 전체 판매 내역 확인 (월단위x)*/
 select distinct C.c_iTel, C.c_iDate, C.c_sCost, I.i_sId, S.s_name from calculate_cost as C
  inner join invoice as I on I.i_consigneeTel=C.c_iTel and I.i_orderDate=C.c_iDate
  inner join shopping_mall as S on S.s_id=I.i_sId
  order by C.c_iDate desc;
+ 
+/* 위에 쿼리문 결과 개수(페이징용) 세는 쿼리문(전체) */
+select count(distinct C.c_iTel, C.c_iDate) from calculate_cost as C
+ inner join invoice as I on I.i_consigneeTel=C.c_iTel and I.i_orderDate=C.c_iDate
+ inner join shopping_mall as S on S.s_id=I.i_sId
+ order by C.c_iDate desc; 
  
 /* 쇼핑몰 월단위 판매 내역 확인 (선택한 월을 기준으로 출력) */
 select distinct C.c_iTel, C.c_iDate, C.c_sCost, I.i_sId, S.s_name from calculate_cost as C
@@ -261,7 +288,15 @@ select distinct C.c_iTel, C.c_iDate, C.c_sCost, I.i_sId, S.s_name from calculate
  inner join shopping_mall as S on S.s_id=I.i_sId
  where C.c_iDate like '%2019-05%'
  order by C.c_iDate desc;
+ 
+/* 위에 쿼리문 결과 개수(페이징용) 세는 쿼리문(월단위) */
+select count(distinct C.c_iTel, C.c_iDate) from calculate_cost as C
+ inner join invoice as I on I.i_consigneeTel=C.c_iTel and I.i_orderDate=C.c_iDate
+ inner join shopping_mall as S on S.s_id=I.i_sId
+ where C.c_iDate like '%2019-05%'
+ order by C.c_iDate desc;
 
+/* ********************************************************************* */
 
 /* 구매처 전체 판매 내역 확인 (월단위x)*/
 select distinct C.c_iTel, C.c_iDate, C.c_oCost, O.o_id, O.o_name from calculate_cost as C
@@ -270,15 +305,50 @@ select distinct C.c_iTel, C.c_iDate, C.c_oCost, O.o_id, O.o_name from calculate_
  inner join order_company as O on O.o_id=P.p_oId
  order by C.c_iDate desc;
  
+/* 쇼핑몰 월단위 판매 내역 확인 (선택한 월을 기준으로 출력) */
+select distinct C.c_iTel, C.c_iDate, C.c_oCost, O.o_id, O.o_name from calculate_cost as C
+ inner join invoice as I on I.i_consigneeTel=C.c_iTel and I.i_orderDate=C.c_iDate
+ inner join product as P on P.p_id=I.i_pId
+ inner join order_company as O on O.o_id=P.p_oId
+ where C.c_iDate like '%2019-05%'
+ order by C.c_iDate desc;
+ 
+/* 위에 쿼리문 결과 개수(페이징용) 세는 쿼리문(월단위) */
+select count(distinct C.c_iTel, C.c_iDate) from calculate_cost as C
+ inner join invoice as I on I.i_consigneeTel=C.c_iTel and I.i_orderDate=C.c_iDate
+ inner join product as P on P.p_id=I.i_pId
+ inner join order_company as O on O.o_id=P.p_oId
+ where C.c_iDate like '%2019-05%'
+ order by C.c_iDate desc;
+ 
+/* ********************************************************************* */
  
 /* 운송 회사 전체 판매 내역 확인 (월단위x)*/
 select distinct C.c_iTel, C.c_iDate, C.c_tCost, T.t_id, T.t_name from calculate_cost as C
  inner join invoice as I on I.i_consigneeTel=C.c_iTel and I.i_orderDate=C.c_iDate
  inner join trans_company as T on T.t_id=I.i_tId
  order by C.c_iDate desc;
+ 
+/* 운송 회사 월단위 판매 내역 확인 (선택한 월을 기준으로 출력) */
+select distinct C.c_iTel, C.c_iDate, C.c_tCost, T.t_id, T.t_name from calculate_cost as C
+ inner join invoice as I on I.i_consigneeTel=C.c_iTel and I.i_orderDate=C.c_iDate
+ inner join trans_company as T on T.t_id=I.i_tId
+ where C.c_iDate like '%2019-05%'
+ order by C.c_iDate desc;
+ 
+/* 위에 쿼리문 결과 개수(페이징용) 세는 쿼리문(월단위) */
+select count(distinct C.c_iTel, C.c_iDate) from calculate_cost as C
+ inner join invoice as I on I.i_consigneeTel=C.c_iTel and I.i_orderDate=C.c_iDate
+ inner join trans_company as T on T.t_id=I.i_tId
+ where C.c_iDate like '%2019-05%'
+ order by C.c_iDate desc;
+ 
+/* ********************************************************************* */
 
 /* 재고가 10개 이하이면 알림 메시지 띄워주기 */
 select count(p_id) from product where p_amount <= 10;
+
+
 
 /* ******************************************************************* */
 /* ***************    발주 회사 화면 부분   ************************** */
@@ -357,6 +427,7 @@ select I.i_id, I.i_consigneeName, I.i_consigneeTel, I.i_orderDate, C.c_oCost fro
  group by I.i_consigneeTel, I.i_orderDate
  order by I.i_orderDate desc;
 
+select * from product;
 
 /* ********************************************************************* */
 

@@ -324,13 +324,13 @@ public class CalculateCostProc extends HttpServlet {
 			
 		/////////////////////////////////////////////////////////////////
 			
-		case "list":
+		case "shoppingList":	//쇼핑몰 페이지 나누는 부분
 			if (!request.getParameter("page").equals("")) {
 				curPage = Integer.parseInt(request.getParameter("page"));
 			}
 			LOG.trace("curPage:" + curPage);
 			cDao = new CalculateCostDAO();
-			int count = cDao.getCount();
+			int count = cDao.getShoppingCount();
 			if (count == 0)			// 데이터가 없을 때 대비
 				count = 1;
 			int pageNo = (int)Math.ceil(count/10.0);
@@ -344,14 +344,14 @@ public class CalculateCostProc extends HttpServlet {
 			page = "<a href=#>&laquo;</a>&nbsp;";
 			pageList.add(page);
 			for (int i=1; i<=pageNo; i++) {
-				page = "&nbsp;<a href=CalculateCostProc?action=list&page=" + i + ">" + i + "</a>&nbsp;";
+				page = "&nbsp;<a href=CalculateCostProc?action=shoppingList&page=" + i + ">" + i + "</a>&nbsp;";
 				pageList.add(page);
 			}
 			page = "&nbsp;<a href=#>&raquo;</a>";
 			pageList.add(page);
 			
 			List<CalculateCostDTO> ipList = cDao.selectShoppingPage(curPage);
-			LOG.trace("ipList:" + ipList.toString());
+			//LOG.trace("ipList:" + ipList.toString());
 			request.setAttribute("ipList", ipList);
 			request.setAttribute("pageList", pageList);
 			rd = request.getRequestDispatcher("view/monthlySalesHistory.jsp");
@@ -359,6 +359,222 @@ public class CalculateCostProc extends HttpServlet {
 			break;	
 			
 		////////////////////////////////////////////////////////////////////////
+		case "pickMonthForSalesList":	// 월단위 판매내역(쇼핑몰) 달 선택 시 - 페이징 쓴 거
+			if (!request.getParameter("page").equals("")) 
+				curPage = Integer.parseInt(request.getParameter("page"));
+			
+			cDao = new CalculateCostDAO();
+			
+			count = cDao.getCountShoppingListSelectMonth(date);
+			LOG.trace("count: " + count);
+			if (count == 0)			// 데이터가 없을 때 대비
+				count = 1;
+			pageNo = (int) Math.ceil(count/10.0);
+			if (curPage > pageNo)	// 경계선에 걸렸을 때 대비
+				curPage--;
+			
+			// 페이징 시작 전에 전부 리셋해놓기
+			pageList = new ArrayList<String>();
+			page = null;
+			
+			// 리스트 페이지의 하단 페이지 데이터 만들어 주기
+			page = "<a href=#>&laquo;</a>&nbsp;";
+			pageList.add(page);
+			for (int i=1; i<=pageNo; i++) {
+				page = "&nbsp;<a href=CalculateCostProc?action=pickMonthForSalesList&page=" + i + ">" + i + "</a>&nbsp;";
+				pageList.add(page);
+			}
+			page = "&nbsp;<a href=#>&raquo;</a>";
+			pageList.add(page);
+			
+			if(request.getParameter("selectMonth") != null && !request.getParameter("selectMonth").equals("")) {
+				date = request.getParameter("selectMonth");
+				ipList = cDao.selectShoppingPageSelectMonth(date, curPage);
+				session.setAttribute("date", date);
+			} else {
+				ipList = cDao.selectShoppingPageSelectMonth((String) session.getAttribute("date"), curPage);
+				LOG.trace("date session:" + (String) session.getAttribute("date"));
+				//session.removeAttribute("date");
+			}
+
+			request.setAttribute("ipList", ipList);
+			request.setAttribute("pageList", pageList);
+			rd = request.getRequestDispatcher("view/monthlySalesHistory.jsp");
+	        rd.forward(request, response);
+			
+			
+			break;
+			
+		////////////////////////////////////////////////////////////////////////	
+			
+		case "orderList": // 구매처 페이지 나누는 부분
+			if (!request.getParameter("page").equals("")) {
+				curPage = Integer.parseInt(request.getParameter("page"));
+			}
+			LOG.trace("curPage:" + curPage);
+			cDao = new CalculateCostDAO();
+			count = cDao.getOrderCount();
+			if (count == 0) // 데이터가 없을 때 대비
+				count = 1;
+			pageNo = (int) Math.ceil(count / 10.0);
+			if (curPage > pageNo) // 경계선에 걸렸을 때 대비
+				curPage--;
+
+			session.setAttribute("currentBbsPage", curPage);
+
+			// 리스트 페이지의 하단 페이지 데이터 만들어 주기
+			page = null;
+			page = "<a href=#>&laquo;</a>&nbsp;";
+			pageList.add(page);
+			for (int i = 1; i <= pageNo; i++) {
+				page = "&nbsp;<a href=CalculateCostProc?action=orderList&page=" + i + ">" + i + "</a>&nbsp;";
+				pageList.add(page);
+			}
+			page = "&nbsp;<a href=#>&raquo;</a>";
+			pageList.add(page);
+
+			List<CalculateCostDTO> opList = cDao.selectOrderPage(curPage);
+			// LOG.trace("opList:" + opList.toString());
+			request.setAttribute("opList", opList);
+			request.setAttribute("pageList", pageList);
+			rd = request.getRequestDispatcher("view/monthlyOrderHistory.jsp");
+			rd.forward(request, response);
+			break;
+			
+			////////////////////////////////////////////////////////////////////////
+		case "pickMonthForOrderList": // 월단위 판매내역(구매처) 달 선택 시 - 페이징 쓴 거
+			if (!request.getParameter("page").equals(""))
+				curPage = Integer.parseInt(request.getParameter("page"));
+
+			cDao = new CalculateCostDAO();
+
+			count = cDao.getCountOrderListSelectMonth(date);
+			LOG.trace("count: " + count);
+			if (count == 0) // 데이터가 없을 때 대비
+				count = 1;
+			pageNo = (int) Math.ceil(count / 10.0);
+			if (curPage > pageNo) // 경계선에 걸렸을 때 대비
+				curPage--;
+
+			// 페이징 시작 전에 전부 리셋해놓기
+			pageList = new ArrayList<String>();
+			page = null;
+
+			// 리스트 페이지의 하단 페이지 데이터 만들어 주기
+			page = "<a href=#>&laquo;</a>&nbsp;";
+			pageList.add(page);
+			for (int i = 1; i <= pageNo; i++) {
+				page = "&nbsp;<a href=CalculateCostProc?action=pickMonthForOrderList&page=" + i + ">" + i
+						+ "</a>&nbsp;";
+				pageList.add(page);
+			}
+			page = "&nbsp;<a href=#>&raquo;</a>";
+			pageList.add(page);
+
+			if (request.getParameter("selectMonth") != null && !request.getParameter("selectMonth").equals("")) {
+				date = request.getParameter("selectMonth");
+				opList = cDao.selectOrderPageSelectMonth(date, curPage);
+				session.setAttribute("date", date);
+			} else {
+				opList = cDao.selectOrderPageSelectMonth((String) session.getAttribute("date"), curPage);
+				LOG.trace("date session:" + (String) session.getAttribute("date"));
+				// session.removeAttribute("date");
+			}
+
+			request.setAttribute("opList", opList);
+			request.setAttribute("pageList", pageList);
+			rd = request.getRequestDispatcher("view/monthlyOrderHistory.jsp");
+			rd.forward(request, response);
+
+			break;
+			
+		////////////////////////////////////////////////////////////////////////
+			
+		case "transitList": // 운송 회사 페이지 나누는 부분
+			if (!request.getParameter("page").equals("")) {
+				curPage = Integer.parseInt(request.getParameter("page"));
+			}
+			LOG.trace("curPage:" + curPage);
+			cDao = new CalculateCostDAO();
+			count = cDao.getTransitCount();
+			if (count == 0) // 데이터가 없을 때 대비
+				count = 1;
+			pageNo = (int) Math.ceil(count / 10.0);
+			if (curPage > pageNo) // 경계선에 걸렸을 때 대비
+				curPage--;
+
+			session.setAttribute("currentBbsPage", curPage);
+
+			// 리스트 페이지의 하단 페이지 데이터 만들어 주기
+			page = null;
+			page = "<a href=#>&laquo;</a>&nbsp;";
+			pageList.add(page);
+			for (int i = 1; i <= pageNo; i++) {
+				page = "&nbsp;<a href=CalculateCostProc?action=transitList&page=" + i + ">" + i + "</a>&nbsp;";
+				pageList.add(page);
+			}
+			page = "&nbsp;<a href=#>&raquo;</a>";
+			pageList.add(page);
+
+			List<CalculateCostDTO> tpList = cDao.selectTransitPage(curPage);
+			// LOG.trace("tpList:" + tpList.toString());
+			request.setAttribute("tpList", tpList);
+			request.setAttribute("pageList", pageList);
+			rd = request.getRequestDispatcher("view/monthlyTransitHistory.jsp");
+			rd.forward(request, response);
+			break;
+			
+			////////////////////////////////////////////////////////////////////////
+		case "pickMonthForTransitList": // 월단위 발주내역(운송 회사) 달 선택 시 - 페이징 쓴 거
+			if (!request.getParameter("page").equals(""))
+				curPage = Integer.parseInt(request.getParameter("page"));
+
+			cDao = new CalculateCostDAO();
+
+			count = cDao.getCountTransitListSelectMonth(date);
+			LOG.trace("count: " + count);
+			if (count == 0) // 데이터가 없을 때 대비
+				count = 1;
+			pageNo = (int) Math.ceil(count / 10.0);
+			if (curPage > pageNo) // 경계선에 걸렸을 때 대비
+				curPage--;
+
+			// 페이징 시작 전에 전부 리셋해놓기 List<CalculateCostDTO> 
+			pageList = new ArrayList<String>();
+			page = null;
+			//tpList = new ArrayList<CalculateCostDTO>();
+			//tpList.clear();
+			//pageList.clear();
+			
+			// 리스트 페이지의 하단 페이지 데이터 만들어 주기
+			page = "<a href=#>&laquo;</a>&nbsp;";
+			pageList.add(page);
+			for (int i = 1; i <= pageNo; i++) {
+				page = "&nbsp;<a href=CalculateCostProc?action=pickMonthForTransitList&page=" + i + ">" + i
+						+ "</a>&nbsp;";
+				pageList.add(page);
+			}
+			page = "&nbsp;<a href=#>&raquo;</a>";
+			pageList.add(page);
+			
+			if (request.getParameter("selectMonth") != null && !request.getParameter("selectMonth").equals("")) {
+				date = request.getParameter("selectMonth");
+				tpList = cDao.selectTransitPageSelectMonth(date, curPage);
+				session.setAttribute("date", date);
+			} else {
+				tpList = cDao.selectTransitPageSelectMonth((String) session.getAttribute("date"), curPage);
+				LOG.trace("date session:" + (String) session.getAttribute("date"));
+				// session.removeAttribute("date");
+			}
+
+			request.setAttribute("tpList", tpList);
+			request.setAttribute("pageList", pageList);
+			rd = request.getRequestDispatcher("view/monthlyTransitHistory.jsp");
+			rd.forward(request, response);
+
+			break;
+			
+		////////////////////////////////////////////////////////////////////////	
 		default:
 			LOG.trace("action이 잘못된 값으로 설정됨");
 

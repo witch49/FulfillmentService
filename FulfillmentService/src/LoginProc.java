@@ -68,12 +68,22 @@ public class LoginProc extends HttpServlet {
 				break;
 			}
 			
+			if(id.equals("admin") && !password.equals("admin")) {
+				request.setAttribute("message", "패스워드 오류입니다. 다시 입력해 주세요.");
+				request.setAttribute("url", "view/login.jsp");
+				rd = request.getRequestDispatcher("alertMsg.jsp");
+				rd.forward(request, response);
+				LOG.trace("관리자 로그인 성공 - 비밀번호 오류");	
+				break;
+			}
+			
 			if(!Pattern.matches("[0-9]*", id)) {
 				request.setAttribute("message", "아이디 오류입니다. 고객이라면 숫자만 입력해 주세요.");
 				request.setAttribute("url", "view/login.jsp");
 				rd = request.getRequestDispatcher("alertMsg.jsp");
 				rd.forward(request, response);
-				LOG.trace("구매 회사 로그인 성공 - 아이디 오류");	
+				LOG.trace("관리자 성공 - 아이디 오류");	
+				break;
 			}
 			
 			// id 범위가 50000에서 70000 사이인 경우 운송회사 아이디
@@ -176,6 +186,11 @@ public class LoginProc extends HttpServlet {
 				session.removeAttribute("alertCount");
 			response.sendRedirect("view/index.jsp");
 			LOG.trace("로그아웃 성공");
+			break;
+			
+			////////////////////////////////////////////////////////////////////////////////////
+		case "loginView":
+			response.sendRedirect("view/login.jsp");
 			break;
 			
 			////////////////////////////////////////////////////////////////////////////////////

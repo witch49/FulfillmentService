@@ -23,7 +23,7 @@
 		 		<h3>월단위 판매내역(쇼핑몰)</h3>
 			</div>
 		 	<div class="col-md-5">
-				<form action="/FulfillmentService/CalculateCostProc?action=pickMonthForSales" class="form-horizontal" method="post" name="form">
+				<form action="/FulfillmentService/CalculateCostProc?action=pickMonthForSalesList&page=1" class="form-horizontal" method="post" name="form">
 					<label for="selectMonth">
 					Date : 
 					</label>&nbsp;
@@ -50,16 +50,18 @@
   					</tr>
   				</c:forEach>
 			</table>
-			<c:set var="pageList" value="${requestScope.pageList}"/>
-			<c:forEach var="pageNo" items="${pageList}">
-				${pageNo}
-			</c:forEach>
-			<hr><hr>
+			<div class="col-md-6 col-md-offset-5">
+				<c:set var="pageList" value="${requestScope.pageList}"/>
+				<c:forEach var="pageNo" items="${pageList}">
+					${pageNo}
+				</c:forEach>
+			</div>
+			
 		 	</div>
 		 </div>
  	</div>
  </div>
- 
+ <hr><hr>
 <jsp:include page="../common/footer.jsp" />
 
 <!-- ==================================================================== -->

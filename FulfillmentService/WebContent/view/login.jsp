@@ -9,7 +9,7 @@
 <link href="../Resources/css/login.css" rel="stylesheet">
 <link href="../Resources/css/bootstrap.min.css" rel="stylesheet">
 
-<title>로그인</title>
+<title>Fulfillment Service</title>
 </head>
 <body>
 <jsp:include page="../common/header.jsp" />

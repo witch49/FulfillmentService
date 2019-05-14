@@ -22,10 +22,10 @@
 	      <ul class="nav navbar-nav navbar-right" >
 	      <li><span class="glyphicon glyphicon-list" aria-hidden="true" style="font-size:30px;"
       	  onclick="location='${pageContext.request.contextPath}/view/loginMain.jsp'"></span></li>
-      	  <li>&nbsp;&nbsp;&nbsp;&nbsp;</li>
-	        <c:if test="${id == null }">
+      	  <li>&nbsp;&nbsp;</li>
+	        <c:if test="${id == null}">
 	        <li>
-	        	<form action="login.jsp" method="get"><br>
+	        	<form action="/FulfillmentService/LoginProc?action=loginView" method="post">
 	        	<button type="submit" class="btn" style="color:#337AB7; background:white;">로그인</button>
 	        	</form>
 	        </li>
