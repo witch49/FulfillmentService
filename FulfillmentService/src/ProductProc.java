@@ -8,7 +8,6 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,13 +36,10 @@ public class ProductProc extends HttpServlet {
 	protected void doAction(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		request.setCharacterEncoding("UTF-8");
 		ProductDAO pDao = null;
-		ProductDTO pDto = null;
 		List<ProductDTO> pList = null, pListBook = null, pListAnimalGoods = null, pListCosmetic = null, pListFruit = null, pListHomeAppliances = null;
 		List<ProductDTO> pListItemDetail = null;
 		List<EventDTO> eListId = null, eListAmount = null;
-		HttpSession session = request.getSession();
 		RequestDispatcher rd = null;
-		String imgName = "", eventName = "";
 		int pId = 0, orderAmount = 0;
 		String action = request.getParameter("action");
 		

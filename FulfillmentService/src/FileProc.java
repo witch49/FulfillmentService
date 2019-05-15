@@ -1,9 +1,6 @@
 
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URI;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
@@ -14,7 +11,6 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import javax.servlet.http.Part;
 
 import org.slf4j.Logger;
@@ -40,13 +36,11 @@ public class FileProc extends HttpServlet {
 	
 	protected void doAction(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		request.setCharacterEncoding("UTF-8");
-		HttpSession session = request.getSession();
 		RequestDispatcher rd = null;
 		String fileName = "";
 		Part filePart = null;
 		InvoiceDAO iDao = null;
 		List<InvoiceDTO> invoiceList = null;
-		List<InvoiceDTO> invoiceDetailList = null;
 		String action = request.getParameter("action");
 		
 		switch (action) {
