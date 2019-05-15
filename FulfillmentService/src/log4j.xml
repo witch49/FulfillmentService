@@ -8,17 +8,16 @@
 	</appender>
 
 	<appender name="dailyout" class="org.apache.log4j.DailyRollingFileAppender">
-		<param name="file" value="d:/workspace1/logs/dailyout.log" />
+		<param name="file" value="d:/logs/dailyout.log" />
 		<param name="Append" value="true" />
 		<param name="DatePattern" value="'.'yyMMdd" />
 		<layout class="org.apache.log4j.PatternLayout">
 			<param name="ConversionPattern" value="%t> [%d{yyyy-MM-dd HH:mm:ss}] [%c{1}] [%L] [%p] %m %n" />		
 		</layout>
 	</appender>
-		
-		<!--  4. 웹 애플리케이션 로깅 기초다지기에서 추가 되는 부분임. -->
-		<appender name="rolling" class="org.apache.log4j.RollingFileAppender">
-		<param name="file" value="d:/workspace1/logs/rolling.log.html" />
+
+	<appender name="rolling" class="org.apache.log4j.RollingFileAppender">
+		<param name="file" value="d:/logs/rolling.log.html" />
 		<param name="Append" value="true" />
 		<param name="MaxFileSize" value="10kb" />
 		<param name="MaxBackupIndex" value="1" />

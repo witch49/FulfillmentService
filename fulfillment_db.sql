@@ -243,7 +243,7 @@ select I.i_id, I.i_consigneeName, I.i_orderDate, S.s_id, S.s_name, T.t_id, T.t_n
 /* 내일 오전 10시 select */
 select CURDATE() + INTERVAL 0 SECOND + INTERVAL 1 DAY + INTERVAL 10 HOUR;
 
-CREATE EVENT AV120oPOJSm40xN50wYV
+CREATE EVENT orderRequest_event_01
  ON SCHEDULE
  at (CURDATE() + INTERVAL 0 SECOND + INTERVAL 1 DAY + INTERVAL 10 HOUR)
  DO update product set p_amount = p_amount + 1 where p_id=1;
