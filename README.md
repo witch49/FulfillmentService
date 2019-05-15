@@ -8,8 +8,8 @@
 
 ## 목차
 
-- [요구사항](#requirements)
-- [DB 설계 테이블](#db-table)
+- [요구사항](#요구사항)
+- [DB 설계 테이블](#db-설계-테이블)
 - [포함된 파일](#about-files)
 - [Demo 영상](#demo)
 - [공동 제작자](#github)
@@ -115,6 +115,4 @@ FulfillmentService/
 
 - <http://github.com/JungHwaJung>
 - <http://github.com/kjh0202>
-- @JungHwaJung
-
 
