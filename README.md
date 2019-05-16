@@ -75,10 +75,10 @@ FulfillmentService/
     │  ├── img/
     │  │  └── ...
     │  └── js/
-    │  │  ├── bootstrap.js
-    │  │  ├── bootstrap.min.js
-    │  │  ├── jquery-ui.min.js
-    │  │  └── npm.js
+    │      ├── bootstrap.js
+    │      ├── bootstrap.min.js
+    │      ├── jquery-ui.min.js
+    │      └── npm.js
     ├── common/
     │  ├── cHeader.jsp
     │  ├── cNavigator.jsp
