@@ -169,7 +169,7 @@ select P.p_id, P.p_name, P.p_img, P.p_price, P.p_amount, P.p_oId, O.o_name from 
  inner join order_company as O on O.o_id = P.p_oId
  where P.p_id = 1;
 
-
+select * from invoice;
 /* 날짜 확인해서 만족하면 && 재고 물량이 1개 이상이라면 ->
   invoice check 를 Y로 상태 바꾸기 &  product의 amount를 갱신하기 */
 update invoice as I inner join product as P on P.p_id=I.i_pId
@@ -182,8 +182,8 @@ update invoice as I inner join product as P on P.p_id=I.i_pId
  	/*1-기록된 시간이 now-1일 && 오후 6시 이후 이거나
  	2-기록된 시간이 now일 && 오전9시  이전 이고
  	3-now시가 오전 9시 이후*/
- 	 ((day(I.i_orderDate) = day(now()-1) and hour(I.i_orderDate) >= 18)
-	 or (day(I.i_orderDate) = day(now()) and hour(I.i_orderDate) < 9))
+ 	 ((day(I.i_orderDate) = day(date_sub(now(), interval 1 day))) and hour(I.i_orderDate) >= 18)
+	 or (day(I.i_orderDate) = day(now()) and hour(I.i_orderDate) < 9)
 	 and (hour(now()) >= 9)
 	)
 	or (
@@ -195,6 +195,7 @@ update invoice as I inner join product as P on P.p_id=I.i_pId
 	 and (hour(now()) >= 18)
 	)
 );
+select day(now())
 select * from invoice where i_check='N'
 /* update 한 이후에 Y인 부분을 cost 테이블에 추가하도록 하기 
  * cost 테이블에 값들 insert 하는 부분 

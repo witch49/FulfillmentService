@@ -118,13 +118,13 @@ public class InvoiceDAO {
 		PreparedStatement pStmt = null;
 		String sql = "update invoice as I inner join product as P on P.p_id=I.i_pId" + 
 				" set I.i_check='Y', P.p_amount=P.p_amount-I.i_amount" + 
-				" where P.p_amount - I.i_amount > 0 and I.i_check = 'N'" + 
+				" where P.p_amount - I.i_amount > 1 and I.i_check='N'" + 
 				" and (" + 
 				" 	(date(I.i_orderDate) <= date(date_sub(now(), interval 2 day)))" + 
-				"   or (date(I.i_orderDate) = date(date_sub(now(), interval 1 day)) and hour(I.i_orderDate) < 18)" +
+				" 	or ( date(I.i_orderDate) = date(date_sub(now(), interval 1 day)) and hour(I.i_orderDate) < 18 )" + 
 				" 	or (" + 
-				" 	 ((day(I.i_orderDate) = day(now()-1) and hour(I.i_orderDate) >= 18)" + 
-				"	 or (day(I.i_orderDate) = day(now()) and hour(I.i_orderDate) < 9))" + 
+				" 	 ((day(I.i_orderDate) = day(date_sub(now(), interval 1 day))) and hour(I.i_orderDate) >= 18)" + 
+				"	 or (day(I.i_orderDate) = day(now()) and hour(I.i_orderDate) < 9)" + 
 				"	 and (hour(now()) >= 9)" + 
 				"	)" + 
 				"	or (" + 
