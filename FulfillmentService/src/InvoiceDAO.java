@@ -39,7 +39,6 @@ public class InvoiceDAO {
 				" inner join shopping_mall as S on I.i_sId = S.s_id" + 
 				" inner join trans_company as T on I.i_tId = T.t_id" + 
 				" order by i_orderDate desc;";
-		
 		try {
 			pStmt = conn.prepareStatement(sql);
 			ResultSet rs = pStmt.executeQuery();
