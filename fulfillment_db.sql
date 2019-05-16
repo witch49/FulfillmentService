@@ -136,9 +136,7 @@ insert into product(p_name, p_img, p_price, p_amount, p_oId) values('스팀다�
 insert into product(p_name, p_img, p_price, p_amount, p_oId) values('진공청소기', 'homeappliances_vacuumcleaner.jpg', 22900, 30, 70005);
 insert into product(p_name, p_img, p_price, p_amount, p_oId) values('정수기', 'homeappliances_waterpurifier.jpg', 32000, 30, 70005);
 
-
-select * from product;
-select * from shopping_mall;
+update product set p_amount = 12 where p_id=2;
 
 select P.p_id, P.p_name, P.p_price, P.p_amount, P.p_oId, O.o_name from product as P
  inner join order_company as O on P.p_oId=O.o_id
@@ -236,7 +234,7 @@ select * from calculate_cost;
 select I.i_id, I.i_consigneeName, I.i_orderDate, S.s_id, S.s_name, T.t_id, T.t_name, i_check from invoice as I
  inner join shopping_mall as S on I.i_sId = S.s_id
  inner join trans_company as T on I.i_tId = T.t_id
- group by I.i_consigneeTel, I.i_orderDate
+ /*group by I.i_consigneeTel, I.i_orderDate*/
  order by i_orderDate;
  
 
@@ -248,10 +246,9 @@ CREATE EVENT orderRequest_event_01
  ON SCHEDULE
  at (CURDATE() + INTERVAL 0 SECOND + INTERVAL 1 DAY + INTERVAL 10 HOUR)
  DO update product set p_amount = p_amount + 1 where p_id=1;
-
+select * from invoice order by i_orderDate
 drop event orderRequest_event_01;
 
-show events from fulfillment like '%0%';
 show events from fulfillment where db='fulfillment';
 show create event 47Gc3HSvRA8747uwY4jm;
 select EVENT_NAME, EVENT_DEFINITION, EXECUTE_AT from INFORMATION_SCHEMA.EVENTS;
@@ -261,6 +258,10 @@ select substring_index(replace(replace(EVENT_DEFINITION, ' where p_id = ', ','),
 select substring_index(replace(replace(EVENT_DEFINITION, ' where p_id = ', ','), 'update product set p_amount = p_amount + ', ''), ',', -1) from INFORMATION_SCHEMA.EVENTS order by CREATED;
 select events from fulfillment;
 
+
+/*
+ https://m.blog.naver.com/PostView.nhn?blogId=jkssleeky&logNo=220432038813&proxyReferer=https%3A%2F%2Fwww.google.com%2F 
+*/
 
 /* 매출 총 이익 출력하기 */
 select sum(c_sCost-c_oCost-c_tCost) from calculate_cost;

@@ -8,6 +8,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,8 +40,9 @@ public class ProductProc extends HttpServlet {
 		List<ProductDTO> pList = null, pListBook = null, pListAnimalGoods = null, pListCosmetic = null, pListFruit = null, pListHomeAppliances = null;
 		List<ProductDTO> pListItemDetail = null;
 		List<EventDTO> eListId = null, eListAmount = null;
+		HttpSession session = request.getSession();
 		RequestDispatcher rd = null;
-		int pId = 0, orderAmount = 0;
+		int pId = 0, orderAmount = 0, alertCount = 0;
 		String action = request.getParameter("action");
 		
 		switch(action) {
@@ -53,6 +55,8 @@ public class ProductProc extends HttpServlet {
 			pListCosmetic = pDao.selectAllCosmetic();
 			pListFruit = pDao.selectAllFruit();
 			pListHomeAppliances = pDao.selectAllHomeAppliances();
+			alertCount = pDao.selectProductCount();
+			session.setAttribute("alertCount", alertCount);
 			
 			request.setAttribute("pListBook", pListBook);
 			request.setAttribute("pListAnimalGoods", pListAnimalGoods);
@@ -89,7 +93,8 @@ public class ProductProc extends HttpServlet {
 			pList = pDao.selectAllItems();
 			eListId = pDao.selectEventpId();
 			eListAmount = pDao.selectEventpAmount();
-			
+			alertCount = pDao.selectProductCount();
+			session.setAttribute("alertCount", alertCount);
 			request.setAttribute("pList", pList);
 			request.setAttribute("eListId", eListId);
 			request.setAttribute("eListAmount", eListAmount);

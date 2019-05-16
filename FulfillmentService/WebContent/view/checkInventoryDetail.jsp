@@ -64,7 +64,7 @@
 	  				</c:forEach>
 				<br>
 				<div class="col-md-6 col-md-offset-5">
-					<button type="button" class="btn btn-info" onclick="location.href='ProductProc?action=showItems'">목록으로</button>
+					<button type="button" class="btn btn-info" onclick="history.back()">목록으로</button>
 				</div>
 			</div>
 			

@@ -39,9 +39,10 @@ public class CalculateCostProc extends HttpServlet {
 		request.setCharacterEncoding("UTF-8");
 		CalculateCostDAO cDao = null;
 		InvoiceDAO iDao = null;
+		ProductDAO pDao = null;
 		List<InvoiceDTO> invoiceList = null, invoiceDetailList = null;
 		List<String> pageList = new ArrayList<String>();
-		int id = 0, iId = 0, curPage= 1;
+		int id = 0, iId = 0, curPage= 1, alertCount = 0;
 		String date = "", idStr = "";
 		HttpSession session = request.getSession();
 		RequestDispatcher rd = null;
@@ -74,8 +75,11 @@ public class CalculateCostProc extends HttpServlet {
 			page = "&nbsp;<a href=#>&raquo;</a>";
 			pageList.add(page);
 			
+			pDao = new ProductDAO();
+			alertCount = pDao.selectProductCount();
+			session.setAttribute("alertCount", alertCount);
+			
 			List<CalculateCostDTO> ipList = cDao.selectShoppingPage(curPage);
-			//LOG.trace("ipList:" + ipList.toString());
 			request.setAttribute("ipList", ipList);
 			request.setAttribute("pageList", pageList);
 			rd = request.getRequestDispatcher("view/monthlySalesHistory.jsp");
@@ -163,6 +167,10 @@ public class CalculateCostProc extends HttpServlet {
 			page = "&nbsp;<a href=#>&raquo;</a>";
 			pageList.add(page);
 
+			pDao = new ProductDAO();
+			alertCount = pDao.selectProductCount();
+			session.setAttribute("alertCount", alertCount);
+			
 			List<CalculateCostDTO> opList = cDao.selectOrderPage(curPage);
 			// LOG.trace("opList:" + opList.toString());
 			request.setAttribute("opList", opList);
@@ -248,6 +256,10 @@ public class CalculateCostProc extends HttpServlet {
 			}
 			page = "&nbsp;<a href=#>&raquo;</a>";
 			pageList.add(page);
+			
+			pDao = new ProductDAO();
+			alertCount = pDao.selectProductCount();
+			session.setAttribute("alertCount", alertCount);
 
 			List<CalculateCostDTO> tpList = cDao.selectTransitPage(curPage);
 			// LOG.trace("tpList:" + tpList.toString());
@@ -314,6 +326,9 @@ public class CalculateCostProc extends HttpServlet {
 			iDao = new InvoiceDAO();
 			invoiceList = iDao.selectInvoiceAll();
 			request.setAttribute("invoiceList", invoiceList);
+			pDao = new ProductDAO();
+			alertCount = pDao.selectProductCount();
+			session.setAttribute("alertCount", alertCount);
 			rd = request.getRequestDispatcher("view/invoiceProcess.jsp");
 			rd.forward(request, response);
 			LOG.trace("관리자 - 송장 처리 화면으로 넘어가기 success");
@@ -416,6 +431,11 @@ public class CalculateCostProc extends HttpServlet {
 			request.setAttribute("Nov", cDao.totalSalesChart(2019, 11));
 			request.setAttribute("Dec", cDao.totalSalesChart(2019, 12));
 			request.setAttribute("year", 2019);
+			
+			pDao = new ProductDAO();
+			alertCount = pDao.selectProductCount();
+			session.setAttribute("alertCount", alertCount);
+			
 			rd = request.getRequestDispatcher("view/totalSales.jsp");
 			rd.forward(request, response);
 

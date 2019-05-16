@@ -38,7 +38,6 @@ public class InvoiceDAO {
 		String sql = "select I.i_id, I.i_consigneeName, I.i_orderDate, S.s_id, S.s_name, T.t_id, T.t_name, i_check from invoice as I" + 
 				" inner join shopping_mall as S on I.i_sId = S.s_id" + 
 				" inner join trans_company as T on I.i_tId = T.t_id" + 
-				" group by I.i_consigneeTel, I.i_orderDate" + 
 				" order by i_orderDate desc;";
 		
 		try {
