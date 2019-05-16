@@ -62,5 +62,47 @@ public class FileDAO {
 		}
 	}
 	
+	public void orderInvoiceIdSet() {
+		LOG.trace("orderInvoiceIdSet() start");
+		String sql ="set @CNT = 100000;";
+		PreparedStatement pStmt = null;
+		try {
+			pStmt = conn.prepareStatement(sql);
+			pStmt.executeQuery();
+			LOG.trace("orderInvoiceIdSet() 성공");
+		} catch (Exception e) {
+			LOG.trace("orderInvoiceIdSet() ERROR");
+			e.printStackTrace();
+		} finally {
+			try {
+				if (pStmt != null && !pStmt.isClosed())
+					pStmt.close();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	public void orderInvoiceIdUpdate() {
+		LOG.trace("orderInvoiceIdUpdate() start");
+		String sql = "update invoice set invoice.i_id = @CNT:=@CNT+1;";
+		PreparedStatement pStmt = null;
+		try {
+			pStmt = conn.prepareStatement(sql);
+			pStmt.executeUpdate();
+			LOG.trace("orderInvoiceIdUpdate() 성공");
+		} catch (Exception e) {
+			LOG.trace("orderInvoiceIdUpdate() ERROR");
+			e.printStackTrace();
+		} finally {
+			try {
+				if (pStmt != null && !pStmt.isClosed())
+					pStmt.close();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
 	
 }

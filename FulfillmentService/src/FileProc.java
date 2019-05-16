@@ -58,9 +58,9 @@ public class FileProc extends HttpServlet {
 		    FileDAO fDao = new FileDAO();
 		    			
 		    fDao.insertFileIntoTable(finalPath);
-			
+			fDao.orderInvoiceIdSet();
+			fDao.orderInvoiceIdUpdate();
 			iDao = new InvoiceDAO();
-
 			invoiceList = iDao.selectInvoiceAll();
 			
 			//request.setAttribute("fileName", fileName);
