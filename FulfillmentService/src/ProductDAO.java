@@ -481,4 +481,35 @@ public class ProductDAO {
 		return eList;
 	}
 	
+	/* 관리자 - 발주 화면에서 현재 발주 요청한 리스트의 발주 들어오는 시각을 받아오는 부분 */
+	public List<EventDTO> selectEventDate() {
+		LOG.trace("ProductDAO selectEventDate() start");
+		String sql = "select EXECUTE_AT from INFORMATION_SCHEMA.EVENTS order by CREATED;";
+		PreparedStatement pStmt = null;
+		List<EventDTO> eList = new ArrayList<>();
+
+		try {
+			pStmt = conn.prepareStatement(sql);
+			ResultSet rs = pStmt.executeQuery();
+
+			while (rs.next()) {
+				EventDTO e = new EventDTO();
+				e.setEvent_executeAt(rs.getString(1));
+				eList.add(e);
+			}
+		} catch (Exception e) {
+			LOG.trace("ProductDAO selectEventDate() ERROR");
+			e.printStackTrace();
+		} finally {
+			try {
+				if (pStmt != null && !pStmt.isClosed())
+					pStmt.close();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		LOG.trace("ProductDAO selectEventDate() success");
+		return eList;
+	}
+	
 }

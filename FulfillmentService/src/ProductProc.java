@@ -39,7 +39,7 @@ public class ProductProc extends HttpServlet {
 		ProductDAO pDao = null;
 		List<ProductDTO> pList = null, pListBook = null, pListAnimalGoods = null, pListCosmetic = null, pListFruit = null, pListHomeAppliances = null;
 		List<ProductDTO> pListItemDetail = null;
-		List<EventDTO> eListId = null, eListAmount = null;
+		List<EventDTO> eListId = null, eListAmount = null, eListDate = null;
 		HttpSession session = request.getSession();
 		RequestDispatcher rd = null;
 		int pId = 0, orderAmount = 0, alertCount = 0;
@@ -93,10 +93,12 @@ public class ProductProc extends HttpServlet {
 			pList = pDao.selectAllItems();
 			eListId = pDao.selectEventpId();
 			eListAmount = pDao.selectEventpAmount();
+			eListDate = pDao.selectEventDate();
 			alertCount = pDao.selectProductCount();
 			session.setAttribute("alertCount", alertCount);
 			request.setAttribute("pList", pList);
 			request.setAttribute("eListId", eListId);
+			request.setAttribute("eListDate", eListDate);
 			request.setAttribute("eListAmount", eListAmount);
 			
 			rd = request.getRequestDispatcher("view/orderRequest.jsp");

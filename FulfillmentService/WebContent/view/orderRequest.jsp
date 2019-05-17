@@ -24,8 +24,10 @@
 				<%-- var="ea" items="${eListAmount}" --%>
 				<c:set var="eListId" value="${requestScope.eListId}"/>
 				<c:set var="eListAmount" value="${requestScope.eListAmount}"/>
+				<c:set var="eListDate" value="${requestScope.eListDate}"/>
 				<c:forEach var="ei" items="${eListId}" varStatus="status">
-					물품id: ${ei.event_pId}&nbsp;&nbsp;요청개수: ${eListAmount[status.index].event_pAmount}개<br>
+					물품id: ${ei.event_pId}&nbsp;&nbsp;요청개수: ${eListAmount[status.index].event_pAmount}개
+					&nbsp;&nbsp;발주날짜: ${eListDate[status.index].event_executeAt.substring(0,16)}<br>
 				</c:forEach>
 				<br>
 			 	<div class="col-ms-11" >
