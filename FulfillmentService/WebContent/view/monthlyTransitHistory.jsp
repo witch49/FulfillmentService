@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
@@ -44,7 +45,7 @@
   					<tr>
   						<td>${cc.c_comId}</td>
 	  					<td>${cc.c_comName}</td>
-	  					<td>${cc.c_tCost}</td>
+	  					<td><fmt:formatNumber value="${cc.c_tCost}" pattern="#,###" /></td>
 	  					<td>${cc.c_iTel}</td>
 	  					<td>${cc.c_iDate}</td>
   					</tr>

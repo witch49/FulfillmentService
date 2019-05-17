@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
@@ -48,7 +49,7 @@
 			  					<tr>
 			  						<td>${p.pId}</td>
 				  					<td>${p.pName}</td>
-				  					<td>${p.pPrice}</td>
+				  					<td><fmt:formatNumber value="${p.pPrice}" pattern="#,###" /></td>
 				  					<td>${p.pAmount}</td>
 				  					<td>${p.p_oId}</td>
 				  					<td>${p.p_oName}</td>
@@ -63,7 +64,7 @@
 		  						<tr style="color:red">
 			  						<td>${p.pId}</td>
 				  					<td>${p.pName}</td>
-				  					<td>${p.pPrice}</td>
+				  					<td><fmt:formatNumber value="${p.pPrice}" pattern="#,###" /></td>
 				  					<td>${p.pAmount}</td>
 				  					<td>${p.p_oId}</td>
 				  					<td>${p.p_oName}</td>

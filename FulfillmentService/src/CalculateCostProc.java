@@ -42,7 +42,7 @@ public class CalculateCostProc extends HttpServlet {
 		ProductDAO pDao = null;
 		List<InvoiceDTO> invoiceList = null, invoiceDetailList = null;
 		List<String> pageList = new ArrayList<String>();
-		int id = 0, iId = 0, curPage= 1, alertCount = 0;
+		int id = 0, iId = 0, curPage= 1, alertCount = 0, totalSalesYear = 0;
 		String date = "", idStr = "";
 		HttpSession session = request.getSession();
 		RequestDispatcher rd = null;
@@ -383,6 +383,12 @@ public class CalculateCostProc extends HttpServlet {
 			request.setAttribute("Nov", cDao.totalSalesChart(2017, 11));
 			request.setAttribute("Dec", cDao.totalSalesChart(2017, 12));
 			request.setAttribute("year", 2017);
+			
+			totalSalesYear = 0;
+			for(int i=1; i<=12; i++) {
+				totalSalesYear += cDao.totalSalesChart(2017, i);
+			}
+			request.setAttribute("totalSalesYear", totalSalesYear);
 			rd = request.getRequestDispatcher("view/totalSales.jsp");
 			rd.forward(request, response);
 
@@ -407,6 +413,12 @@ public class CalculateCostProc extends HttpServlet {
 			request.setAttribute("Nov", cDao.totalSalesChart(2018, 11));
 			request.setAttribute("Dec", cDao.totalSalesChart(2018, 12));
 			request.setAttribute("year", 2018);
+			
+			totalSalesYear = 0;
+			for(int i=1; i<=12; i++) {
+				totalSalesYear += cDao.totalSalesChart(2018, i);
+			}
+			request.setAttribute("totalSalesYear", totalSalesYear);
 			rd = request.getRequestDispatcher("view/totalSales.jsp");
 			rd.forward(request, response);
 
@@ -431,6 +443,12 @@ public class CalculateCostProc extends HttpServlet {
 			request.setAttribute("Nov", cDao.totalSalesChart(2019, 11));
 			request.setAttribute("Dec", cDao.totalSalesChart(2019, 12));
 			request.setAttribute("year", 2019);
+			
+			totalSalesYear = 0;
+			for(int i=1; i<=12; i++) {
+				totalSalesYear += cDao.totalSalesChart(2019, i);
+			}
+			request.setAttribute("totalSalesYear", totalSalesYear);
 			
 			pDao = new ProductDAO();
 			alertCount = pDao.selectProductCount();
