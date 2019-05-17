@@ -258,6 +258,9 @@ select substring_index(replace(replace(EVENT_DEFINITION, ' where p_id = ', ','),
 select substring_index(replace(replace(EVENT_DEFINITION, ' where p_id = ', ','), 'update product set p_amount = p_amount + ', ''), ',', -1) from INFORMATION_SCHEMA.EVENTS order by CREATED;
 select events from fulfillment;
 
+select replace(replace(EVENT_DEFINITION, ' where p_id = ', ','), 'update product set p_amount = p_amount + ', '') , EXECUTE_AT
+ from INFORMATION_SCHEMA.EVENTS order by CREATED;
+ 
 
 /*
  https://m.blog.naver.com/PostView.nhn?blogId=jkssleeky&logNo=220432038813&proxyReferer=https%3A%2F%2Fwww.google.com%2F 
