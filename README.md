@@ -40,23 +40,31 @@ jstl, servlet을 활용한 창고 관리 홈페이지 개발
 ```text
 FulfillmentService/
 ├── src/
-│  ├── CalculateCostDAO.java
-│  ├── CalculateCostDTO.java
-│  ├── CalculateCostProc.java
-│  ├── EventDTO.java
-│  ├── FileDAO.java
-│  ├── FileProc.java
-│  ├── InvoiceDAO.java
-│  ├── InvoiceDTO.java
-│  ├── LoginProc.java
-│  ├── OrderCompanyDAO.java
-│  ├── OrderCompanyDTO.java
-│  ├── ProductDAO.java
-│  ├── ProductDTO.java
-│  ├── ProductProc.java
-│  ├── TransCompanyDAO.java
-│  ├── TransCompanyDTO.java
-│  └── log4j.xml
+│  ├── calculator/
+│  │  ├── CalculateCostDAO.java
+│  │  ├── CalculateCostDTO.java
+│  │  ├── CalculateCostProc.java
+│  │  ├── InvoiceDAO.java
+│  │  └── InvoiceDTO.java
+│  ├── calculatorTest/
+│  │  ├── CalculateCostDAOTest.java
+│  │  └── InvoiceDAOTest.java
+│  ├── company/
+│  │  ├── OrderCompanyDAO.java
+│  │  ├── OrderCompanyDTO.java
+│  │  ├── TransCompanyDAO.java
+│  │  └── TransCompanyDTO.java
+│  ├── event/
+│  │  └── EventDTO.java
+│  ├── file/
+│  │  ├── FileDAO.java
+│  │  └── FileProc.java
+│  ├── login/
+│  │  └── LoginProc.java
+│  └── product/
+│      ├── ProductDAO.java
+│      ├── ProductDTO.java
+│      └── ProductProc.java
 └── WebContent/
     ├── Resources/
     │  ├── css/
