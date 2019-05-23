@@ -1,19 +1,22 @@
+package calculator;
+
+import java.util.Objects;
 
 public class InvoiceDTO {
-	private int iId;
-	private String iConsigneeName;
-	private String iConsigneeTel;
-	private String iConsigneeAddr;
-	private int i_pId;
-	private String i_pName;
-	private int iAmount;
-	private String iOrderDate;
-	private int i_sId;
-	private String i_sName;
-	private int i_tId;
-	private String i_tName;
-	private String iCheck;
-	private int cost;
+	private int iId = 0;
+	private String iConsigneeName = "";
+	private String iConsigneeTel = "";
+	private String iConsigneeAddr = "";
+	private int i_pId = 0;
+	private String i_pName = "";
+	private int iAmount = 0;
+	private String iOrderDate = "";
+	private int i_sId = 0;
+	private String i_sName = "";
+	private int i_tId = 0;
+	private String i_tName = "";
+	private String iCheck = "";
+	private int cost = 0;
 
 	public InvoiceDTO(int iId, String iConsigneeName, String iConsigneeTel, String iConsigneeAddr, int i_pId,
 			String i_pName, int iAmount, String iOrderDate, int i_sId, String i_sName, int i_tId, String i_tName,
@@ -31,6 +34,14 @@ public class InvoiceDTO {
 		this.i_tId = i_tId;
 		this.i_tName = i_tName;
 		this.iCheck = iCheck;
+		this.cost = cost;
+	}
+
+	public InvoiceDTO(int iId, String iConsigneeName, String iConsigneeTel, String iOrderDate, int cost) {
+		this.iId = iId;
+		this.iConsigneeName = iConsigneeName;
+		this.iConsigneeTel = iConsigneeTel;
+		this.iOrderDate = iOrderDate;
 		this.cost = cost;
 	}
 
@@ -156,5 +167,25 @@ public class InvoiceDTO {
 				+ iAmount + ", iOrderDate=" + iOrderDate + ", i_sId=" + i_sId + ", i_sName=" + i_sName + ", i_tId="
 				+ i_tId + ", i_tName=" + i_tName + ", iCheck=" + iCheck + ", cost=" + cost + "]";
 	}
+	
+	@Override
+	public int hashCode() {
+		return Objects.hash(iId, iConsigneeName, iConsigneeTel, iConsigneeAddr, i_pId, i_pName, iAmount, iOrderDate, i_sId, i_sName, i_tId, i_tName, iCheck, cost);
+	}
 
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof InvoiceDTO) {
+			InvoiceDTO iDto = (InvoiceDTO) obj;
+			if ((iId == iDto.iId) && iConsigneeName.equals(iDto.iConsigneeName)
+					&& iConsigneeTel.equals(iDto.iConsigneeTel) && iConsigneeAddr.equals(iDto.iConsigneeAddr)
+					&& (i_pId == iDto.i_pId) && i_pName.equals(iDto.i_pName) && (iAmount == iDto.iAmount)
+					&& iOrderDate.equals(iDto.iOrderDate) && (i_sId == iDto.i_sId) && i_sName.equals(iDto.i_sName)
+					&& (i_tId == iDto.i_tId) && i_tName.equals(iDto.i_tName) && iCheck.equals(iDto.iCheck)
+					&& (cost == iDto.cost))
+				return true;
+		}
+		return false;
+	}
+	
 }

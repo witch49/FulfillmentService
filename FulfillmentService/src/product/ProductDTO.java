@@ -1,3 +1,4 @@
+package product;
 public class ProductDTO {
 	private int pId;
 	private String pName;

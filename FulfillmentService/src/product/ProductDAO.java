@@ -1,3 +1,4 @@
+package product;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -8,6 +9,8 @@ import java.util.Random;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import event.EventDTO;
 
 public class ProductDAO {
 	public static final int ID_PASSWORD_MATCH = 1;
@@ -413,7 +416,7 @@ public class ProductDAO {
 			}
 		}
 		LOG.trace("ProductDAO selectProductCount() success");
-		LOG.trace("rowCount : " + rowCount);
+		//LOG.trace("rowCount : " + rowCount);
 		return rowCount;
 	}
 	

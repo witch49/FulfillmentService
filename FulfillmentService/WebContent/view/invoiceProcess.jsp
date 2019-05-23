@@ -36,13 +36,11 @@
 		 		
 		 		<table class="table table-hover">
 	  				<tr>
-	  					<th>송장id</th>
+	  					<th>송장 번호</th>
 	  					<th>수신인 성함</th>
 	  					<th>주문 날짜</th>
-	  					<th>쇼핑몰 id</th>
-	  					<th>쇼핑몰 이름</th>
-	  					<th>운송 회사 id</th>
-	  					<th>운송 회사 이름</th>
+	  					<th>쇼핑몰 이름&nbsp;(ID)</th>
+	  					<th>운송 회사 이름&nbsp;(ID)</th>
 	  					<th>송장 처리</th>
 	  				</tr>
 	  				<c:set var="iList" value="${requestScope.invoiceList}"/>
@@ -51,10 +49,8 @@
 	  						<td><a href='/FulfillmentService/CalculateCostProc?action=invoiceCheckDetail&iId=${i.iId}'>${i.iId}</a></td>
 	  						<td>${i.iConsigneeName}</td>
 	  						<td>${i.iOrderDate}</td>
-	  						<td>${i.i_sId}</td>
-	  						<td>${i.i_sName}</td>
-	  						<td>${i.i_tId}</td>
-	  						<td>${i.i_tName}</td>
+	  						<td>${i.i_sName}&nbsp;(${i.i_sId})</td>
+	  						<td>${i.i_tName}&nbsp;(${i.i_tId})</td>
 	  						<td>${i.iCheck}</td>
 	  					</tr>
 	  				</c:forEach>

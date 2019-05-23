@@ -1,3 +1,4 @@
+package company;
 public class OrderCompanyDTO {
 	private int oId;
 	private String oPwd;

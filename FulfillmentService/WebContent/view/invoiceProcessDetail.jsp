@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
@@ -28,7 +29,7 @@
 
 							<div class="panel panel-primary">
 							  <div class="panel-heading">
-							    <h3 class="panel-title"><strong>&emsp;&emsp;송장id</strong>&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&thinsp;<strong>${i.iId}</strong></h3>
+							    <h3 class="panel-title"><strong>&emsp;&emsp;송장 번호</strong>&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&thinsp;<strong>${i.iId}</strong></h3>
 							  </div>
 							  <div class="panel-body">
 								  <div class="col-md-11">
@@ -58,16 +59,20 @@
 									  		<td>${i.iAmount}</td>
 									  	</tr>
 									  	<tr>
+									  		<th>금액</th>
+									  		<td><fmt:formatNumber value="${i.cost}" pattern="#,###" />원</td>
+									  	</tr>
+									  	<tr>
 									  		<th>주문 날짜</th>
 									  		<td>${i.iOrderDate}</td>
 									  	</tr>
 									  	<tr>
-									  		<th>쇼핑몰 id</th>
-									  		<td>${i.i_sId}</td>
+									  		<th>쇼핑몰 이름&nbsp;(ID)</th>
+									  		<td>${i.i_sName}&nbsp;(${i.i_sId})</td>
 									  	</tr>
 									  	<tr>
-									  		<th>운송 회사 id</th>
-									  		<td>${i.i_tId}</td>
+									  		<th>운송 회사 이름&nbsp;(ID)</th>
+									  		<td>${i.i_tName}&nbsp;(${i.i_tId})</td>
 									  	</tr>
 									  	<tr>
 									  		<th>송장 처리</th>

@@ -1,3 +1,4 @@
+package calculator;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -313,7 +314,7 @@ public class CalculateCostDAO {
 	}
 	
 	/* 관리자 : 매출 총이익 가져오는 부분(xx년도 xx월) */
-	public int totalSalesChart (int year, int month) {
+	public int totalSalesChart(int year, int month) {
 		LOG.trace("CalculateCostDAO totalSalesChart() start");	
 		String sql = "select sum(c_sCost - c_oCost - c_tCost) from calculate_cost" + 
 				" where year(c_iDate) = " + year + 

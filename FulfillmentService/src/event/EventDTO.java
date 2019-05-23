@@ -1,3 +1,4 @@
+package event;
 
 public class EventDTO {
 	private int event_pId;

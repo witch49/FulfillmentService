@@ -1,3 +1,5 @@
+package calculator;
+
 import java.sql.*;
 import java.util.*;
 
@@ -73,7 +75,13 @@ public class InvoiceDAO {
 		LOG.trace("InvoiceDAO selectInvoiceDetailAll() start");
 		PreparedStatement pStmt = null;
 		List<InvoiceDTO> invoiceDetailList = new ArrayList<>();
-		String sql = "select * from invoice where i_id=?;";
+		//String sql = "select * from invoice where i_id=?;";
+		String sql = "select I.i_id, I.i_consigneeName, I.i_consigneeTel, I.i_consigneeAddr, I.i_pId, I.i_pName," + 
+				" I.i_amount, I.i_orderDate, I.i_sId, S.s_name, I.i_tId, T.t_name, I.i_check, (I.i_amount*P.p_price) from invoice as I" + 
+				"  inner join trans_company as T on T.t_id=I.i_tId" + 
+				"  inner join shopping_mall as S on S.s_id=I.i_sId" + 
+				"  inner join product as P on P.p_id=I.i_pId" + 
+				"  where I.i_id=?;";
 		
 		try {
 			pStmt = conn.prepareStatement(sql);
@@ -90,8 +98,11 @@ public class InvoiceDAO {
 				i.setiAmount(rs.getInt(7));
 				i.setiOrderDate( rs.getString(8).substring(0, 16));
 				i.setI_sId(rs.getInt(9));
-				i.setI_tId(rs.getInt(10));
-				i.setiCheck(rs.getString(11));
+				i.setI_sName(rs.getString(10));
+				i.setI_tId(rs.getInt(11));
+				i.setI_tName(rs.getString(12));
+				i.setiCheck(rs.getString(13));
+				i.setCost(rs.getInt(14));
 				invoiceDetailList.add(i);
 			}
 		} catch (Exception e) {

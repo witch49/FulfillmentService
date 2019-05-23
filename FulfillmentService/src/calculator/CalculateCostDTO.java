@@ -1,3 +1,6 @@
+package calculator;
+
+import java.util.Objects;
 
 public class CalculateCostDTO {
 	private String c_iTel;
@@ -82,6 +85,23 @@ public class CalculateCostDTO {
 	public String toString() {
 		return "CalculateCostDTO [c_iTel=" + c_iTel + ", c_iDate=" + c_iDate + ", c_sCost=" + c_sCost + ", c_oCost="
 				+ c_oCost + ", c_tCost=" + c_tCost + ", c_comId=" + c_comId + ", c_comName=" + c_comName + "]";
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(c_iTel, c_iDate, c_sCost, c_oCost, c_tCost, c_comId, c_comName);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof CalculateCostDTO) {
+			CalculateCostDTO cDto = (CalculateCostDTO) obj;
+			if (c_iTel.equals(cDto.c_iTel) && c_iDate.equals(cDto.c_iDate) && (c_sCost == cDto.c_sCost)
+					&& (c_oCost == cDto.c_oCost) && (c_tCost == cDto.c_tCost) && (c_comId == cDto.c_comId)
+					&& c_comName.equals(cDto.c_comName))
+				return true;
+		}
+		return false;
 	}
 
 }

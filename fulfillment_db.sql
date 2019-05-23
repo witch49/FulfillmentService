@@ -142,6 +142,13 @@ select P.p_id, P.p_name, P.p_price, P.p_amount, P.p_oId, O.o_name from product a
  inner join order_company as O on P.p_oId=O.o_id
  order by P.p_amount;
 
+select I.i_id, I.i_consigneeName, I.i_consigneeTel, I.i_consigneeAddr, I.i_pId, I.i_pName,
+ I.i_amount, I.i_orderDate, I.i_sId, S.s_name, I.i_tId, T.t_name, I.i_check, (I.i_amount*P.p_price) from invoice as I
+  inner join trans_company as T on T.t_id=I.i_tId
+  inner join shopping_mall as S on S.s_id=I.i_sId
+  inner join product as P on P.p_id=I.i_pId
+  where I.i_id=100001;
+
 
 /* *********************************************************** */
 /* 아래서부터는 eclipse에서 사용하는 쿼리문들. 실행하지 말 것  */
@@ -291,7 +298,7 @@ select count(distinct C.c_iTel, C.c_iDate) from calculate_cost as C
 select distinct C.c_iTel, C.c_iDate, C.c_sCost, I.i_sId, S.s_name from calculate_cost as C
  inner join invoice as I on I.i_consigneeTel=C.c_iTel and I.i_orderDate=C.c_iDate
  inner join shopping_mall as S on S.s_id=I.i_sId
- where C.c_iDate like '%2019-05%'
+ where C.c_iDate like '%2018-01%'
  order by C.c_iDate desc;
  
 /* 위에 쿼리문 결과 개수(페이징용) 세는 쿼리문(월단위) */
@@ -309,7 +316,15 @@ select distinct C.c_iTel, C.c_iDate, C.c_oCost, O.o_id, O.o_name from calculate_
  inner join product as P on P.p_id=I.i_pId
  inner join order_company as O on O.o_id=P.p_oId
  order by C.c_iDate desc;
- 
+
+/* 구매처 월단위 발주 내역 확인 (선택한 월을 기준으로 출력)*/
+select distinct C.c_iTel, C.c_iDate, C.c_oCost, O.o_id, O.o_name from calculate_cost as C
+ inner join invoice as I on I.i_consigneeTel=C.c_iTel and I.i_orderDate=C.c_iDate
+ inner join product as P on P.p_id=I.i_pId
+ inner join order_company as O on O.o_id=P.p_oId
+ where C.c_iDate like '%2018-01%'
+ order by C.c_iDate desc;
+  
 /* 쇼핑몰 월단위 판매 내역 확인 (선택한 월을 기준으로 출력) */
 select distinct C.c_iTel, C.c_iDate, C.c_oCost, O.o_id, O.o_name from calculate_cost as C
  inner join invoice as I on I.i_consigneeTel=C.c_iTel and I.i_orderDate=C.c_iDate
@@ -356,10 +371,10 @@ select count(p_id) from product where p_amount <= 10;
 
 
 /* ******************************************************************* */
-/* ***************    발주 회사 화면 부분   ************************** */
+/* ***************    운송 회사 화면 부분   ************************** */
 /* ******************************************************************* */
 
-/* 발주 회사의 일별 주문 내역을 확인하는 부분  */
+/* 운송 회사의 일별 주문 내역을 확인하는 부분  */
 select I.i_id, I.i_consigneeName, I.i_consigneeTel, I.i_orderDate, C.c_tCost from invoice as I
  inner join calculate_cost as C on C.c_iTel=I.i_consigneeTel and C.c_iDate=I.i_orderDate
  inner join trans_company as T on T.t_id=I.i_tId
@@ -367,7 +382,7 @@ select I.i_id, I.i_consigneeName, I.i_consigneeTel, I.i_orderDate, C.c_tCost fro
  group by I.i_consigneeTel, I.i_orderDate
  order by I.i_orderDate desc;
 
-/* 발주 회사의 일별 주문 내역 화면 출력 시 default값은 오늘 날짜 */
+/* 운송 회사의 일별 주문 내역 화면 출력 시 default값은 오늘 날짜 */
 select I.i_id, I.i_consigneeName, I.i_consigneeTel, I.i_orderDate, C.c_tCost from invoice as I
  inner join calculate_cost as C on C.c_iTel=I.i_consigneeTel and C.c_iDate=I.i_orderDate
  inner join trans_company as T on T.t_id=I.i_tId
@@ -375,7 +390,7 @@ select I.i_id, I.i_consigneeName, I.i_consigneeTel, I.i_orderDate, C.c_tCost fro
  group by I.i_consigneeTel, I.i_orderDate
  order by I.i_orderDate desc;
  
-/* 발주 회사의 월별 주문 내역을 확인하는 부분  */
+/* 운송 회사의 월별 주문 내역을 확인하는 부분  */
 select I.i_id, I.i_consigneeName, I.i_consigneeTel, I.i_orderDate, C.c_tCost from invoice as I
  inner join calculate_cost as C on C.c_iTel=I.i_consigneeTel and C.c_iDate=I.i_orderDate
  inner join trans_company as T on T.t_id=I.i_tId
@@ -383,7 +398,7 @@ select I.i_id, I.i_consigneeName, I.i_consigneeTel, I.i_orderDate, C.c_tCost fro
  group by I.i_consigneeTel, I.i_orderDate
  order by I.i_orderDate desc;
 
-/* 발주 회사의 일별 주문 내역 화면 출력 시 default값은 현재 달 */
+/* 운송 회사의 일별 주문 내역 화면 출력 시 default값은 현재 달 */
 select I.i_id, I.i_consigneeName, I.i_consigneeTel, I.i_orderDate, C.c_tCost from invoice as I
  inner join calculate_cost as C on C.c_iTel=I.i_consigneeTel and C.c_iDate=I.i_orderDate
  inner join trans_company as T on T.t_id=I.i_tId

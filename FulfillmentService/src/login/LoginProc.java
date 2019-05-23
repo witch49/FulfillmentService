@@ -1,3 +1,4 @@
+package login;
 
 
 import java.io.IOException;
@@ -6,6 +7,7 @@ import java.util.regex.Pattern;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -13,6 +15,12 @@ import javax.servlet.http.HttpSession;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import company.OrderCompanyDAO;
+import company.OrderCompanyDTO;
+import company.TransCompanyDAO;
+import company.TransCompanyDTO;
+import product.ProductDAO;
 
 
 /**
@@ -22,10 +30,10 @@ import org.slf4j.LoggerFactory;
 public class LoginProc extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private static final Logger LOG = LoggerFactory.getLogger(LoginProc.class);
-       
-    public LoginProc() {
-        super();
-    }
+
+	public LoginProc() {
+		super();
+	}
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		doAction(request, response);
@@ -40,6 +48,7 @@ public class LoginProc extends HttpServlet {
 		String errorMessage = "";
 		String action = request.getParameter("action");
 		HttpSession session = request.getSession();
+		Cookie[] cookies = null;
 		RequestDispatcher rd = null;
 		TransCompanyDAO tDao = null;
 		TransCompanyDTO tDto = null;
@@ -47,6 +56,7 @@ public class LoginProc extends HttpServlet {
 		OrderCompanyDTO oDto = null;
 		ProductDAO pDao = null;
 		int alertCount = 0;
+		
 		
 		switch(action) {
 
@@ -60,6 +70,19 @@ public class LoginProc extends HttpServlet {
 			/* 관리자 로그인하는 부분 */
 			if (id.equals("admin") && password.equals("admin")) {
 				session.setAttribute("id", id);
+				
+				cookies = request.getCookies();
+				Cookie c = new Cookie("fulfillment", session.getId() + "" + new java.util.Date().toString().replace(" ", ""));
+				LOG.trace("c1쿠키명: " + c.getName() + ", c1쿠키값: " + c.getValue());
+				
+				if(cookies != null) {					
+					for(Cookie cookie : cookies)
+						LOG.trace("c2쿠키명: " + cookie.getName() + ",  c2쿠키값: " + cookie.getValue());
+				}
+				
+				c.setPath("/FulfillmentService/view/login.jsp");
+				response.addCookie(c);
+				
 				pDao = new ProductDAO();
 				alertCount = pDao.selectProductCount();
 				session.setAttribute("alertCount", alertCount);

@@ -1,3 +1,4 @@
+package company;
 public class TransCompanyDTO {
 	private int tId;
 	private String tPwd;
