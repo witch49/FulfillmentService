@@ -10,29 +10,34 @@ import calculator.CalculateCostDAO;
 import calculator.CalculateCostDTO;
 
 public class CalculateCostDAOTest {
-	private CalculateCostDAO cDao = null;
-	private CalculateCostDTO cDto = null;
+	private static CalculateCostDAO cDao = null;
+	private static CalculateCostDTO cDto = null;
 	
 	/**
 	 * https://www.mkyong.com/unittest/junit-how-to-test-a-list/
 	 * */
 	
+	@BeforeClass
+	public static void beforeClassTest() {
+		
+	}
+	
 	@Before
 	public void beforeTest() {
 		cDao = new CalculateCostDAO();
 		cDto = new CalculateCostDTO();
+		System.out.println("beforeTest()");
 	}
 	
 	@Test
 	public void selectMonthSalesTest() {
 		ArrayList<CalculateCostDTO> actual = new ArrayList<>(cDao.selectMonthSales("2018-01"));
-
 		CalculateCostDTO cDto1 = new CalculateCostDTO("010-8781-5799", "2018-01-27 00:02", 22320, 0, 0, 30001, "CI몰");
 		CalculateCostDTO cDto2 = new CalculateCostDTO("010-1726-9876", "2018-01-20 15:31", 45200, 0, 0, 30003, "쿠팽");
 		CalculateCostDTO cDto3 = new CalculateCostDTO("010-7678-7807", "2018-01-03 23:25", 20890, 0, 0, 30002, "G-마트");
 		ArrayList<CalculateCostDTO> expected = new ArrayList<>(Arrays.asList(cDto1, cDto2, cDto3));
-
 		assertThat(actual, is(expected));
+		System.out.println("selectMonthSalesTest()");
 	}
 	
 	@Test
@@ -43,6 +48,7 @@ public class CalculateCostDAOTest {
 		CalculateCostDTO cDto3 = new CalculateCostDTO("010-7678-7807", "2018-01-03 23:25", 0, 9900, 0, 70004, "오렌지씨");
 		ArrayList<CalculateCostDTO> expected = new ArrayList<>(Arrays.asList(cDto1, cDto2, cDto3));
 		assertThat(actual, is(expected));
+		System.out.println("selectMonthOrderTest()");
 	}
 	
 	@Test
@@ -53,12 +59,14 @@ public class CalculateCostDAOTest {
 		CalculateCostDTO cDto3 = new CalculateCostDTO("010-7678-7807", "2018-01-03 23:25", 0, 0, 10000, 50003, "영남물류");
 		ArrayList<CalculateCostDTO> expected = new ArrayList<>(Arrays.asList(cDto1, cDto2, cDto3));
 		assertThat(actual, is(expected));
+		System.out.println("selectMonthTransitTest()");
 	}
 	
 	@Test
 	public void totalSalesChartTest() {
 		int actual = cDao.totalSalesChart(2019, 05);
 		assertEquals(38390, actual);
+		System.out.println("totalSalesChartTest()");
 	}
 	
 	@Test
@@ -76,6 +84,7 @@ public class CalculateCostDAOTest {
 		CalculateCostDTO cDto10 = new CalculateCostDTO("010-1111-2222", "2019-05-08 15:31", 29800, 0, 0, 30001, "CI몰");
 		ArrayList<CalculateCostDTO> expected = new ArrayList<>(Arrays.asList(cDto1, cDto2, cDto3, cDto4, cDto5, cDto6, cDto7, cDto8, cDto9, cDto10));
 		assertThat(actual, is(expected));
+		System.out.println("selectShoppingPageSelectMonthTest()");
 		
 	}
 	
@@ -83,6 +92,18 @@ public class CalculateCostDAOTest {
 	public void getCountShoppingListSelectMonthTest() {
 		int actual = cDao.getCountShoppingListSelectMonth("2019-05");
 		assertEquals(20, actual);
+		System.out.println("getCountShoppingListSelectMonthTest()");
+	}
+	
+	@After
+	public void afterTest() {
+		System.out.println("afterTest()\n");
+	}
+	
+	@AfterClass
+	public static void afterClassTest() {
+		cDao.close();
+		System.out.println("AfterClassTest()");
 	}
 	
 }

@@ -30,6 +30,15 @@ public class CalculateCostDAO {
         } 
 	}
 	
+	public void close() {
+		try {
+			if (conn != null && conn.isClosed())
+				conn.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
 	/* 관리자 : 월단위 판매내역(쇼핑몰) 확인하는 부분 */
 	public List<CalculateCostDTO> selectAllShopping() {
 		LOG.trace("CalculateCostDAO selectAllShopping() start");
@@ -483,7 +492,6 @@ public class CalculateCostDAO {
 				" inner join shopping_mall as S on S.s_id=I.i_sId" + 
 				" where C.c_iDate like '%" + date + "%'" + 
 				" order by C.c_iDate desc;";
-		LOG.trace("date: " + date);
 		PreparedStatement pStmt = null;
 		int count = 0;
 		try {

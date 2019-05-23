@@ -394,7 +394,7 @@ select I.i_id, I.i_consigneeName, I.i_consigneeTel, I.i_orderDate, C.c_tCost fro
 select I.i_id, I.i_consigneeName, I.i_consigneeTel, I.i_orderDate, C.c_tCost from invoice as I
  inner join calculate_cost as C on C.c_iTel=I.i_consigneeTel and C.c_iDate=I.i_orderDate
  inner join trans_company as T on T.t_id=I.i_tId
- where I.i_orderDate like '%2019-05%' and I.i_tId = 50001
+ where I.i_orderDate like '%2019-01%' and I.i_tId = 50001
  group by I.i_consigneeTel, I.i_orderDate
  order by I.i_orderDate desc;
 
